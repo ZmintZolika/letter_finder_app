@@ -19,12 +19,11 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Megnézzük, hogy a telefon éppen álló (portrait) vagy fekvő (landscape) helyzetben van-e:
-    final isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
+    // Lekérdezzük a képernyő tájolását
+    final orientation = MediaQuery.orientationOf(context);
 
-    // Álló módban 5 oszlop, fekvő módban 9 oszlop:
-    final int columnCount = isPortrait ? 5 : 9;
+    // Eldöntjük az oszlopok számát:
+    final int columnCount = (orientation == Orientation.portrait) ? 5 : 9;
 
     return Scaffold(
       appBar: AppBar(
