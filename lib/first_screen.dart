@@ -25,9 +25,9 @@ class HomeScreen extends StatelessWidget {
             ), // Kis távolság a szöveg és a gomb között
             ElevatedButton(
               onPressed: () {
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (ctx) => const ABC_game()));
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (ctx) => const LetterGridScreen()),
+                );
               },
               child: const Text('Kattints ide!'),
             ),
