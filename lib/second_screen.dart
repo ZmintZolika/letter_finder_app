@@ -29,7 +29,7 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
 
   Color cardLetterColor = Colors.blueAccent;
   Color cardFrameColor = Colors.lightBlue;
-  Color shadedBox = Colors.black87;
+  Color get shadedBox => cardLetterColor;
 
   // Inverz háttérhez függcény
   Color getInvertedColor(Color color) {
@@ -47,7 +47,7 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
     final orientation = MediaQuery.orientationOf(context);
 
     // Eldöntjük az oszlopok számát:
-    final int columnCount = (orientation == Orientation.portrait) ? 5 : 9;
+    final int columnCount = (orientation == Orientation.portrait) ? 4 : 9;
 
     return Scaffold(
       appBar: AppBar(
@@ -137,7 +137,7 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
                   // Lefordítva fekete, felfordítva világos lila
                   color: isRevealed
                       ? Colors.deepPurple.shade50
-                      : Colors.black87,
+                      : cardFrameColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isRevealed ? cardFrameColor : shadedBox,
