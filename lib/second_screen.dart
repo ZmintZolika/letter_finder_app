@@ -17,6 +17,10 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
   // 2. Ebben a Set-ben (halmazban) tároljuk azokat a betűket, amiket már felfordított a játékos
   final Set<String> revealedLetters = {};
 
+  Color cardLetterColor = Colors.blueAccent;
+  Color cardFrameColor = Colors.lightBlue;
+  Color shadedBox = Colors.black87
+
   @override
   Widget build(BuildContext context) {
     // Lekérdezzük a képernyő tájolását
@@ -28,7 +32,7 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Letter Finder Grid'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: cardLetterColor,
         centerTitle: true,
       ),
       body: Padding(
@@ -63,7 +67,7 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
                       : Colors.black87,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isRevealed ? Colors.deepPurple : Colors.black,
+                    color: isRevealed ? cardFrameColor : shadedBox,
                     width: 2,
                   ),
                   boxShadow: const [
@@ -79,10 +83,10 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
                 child: isRevealed
                     ? Text(
                         letter,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                          color: cardLetterColor,
                         ),
                       )
                     : null,
