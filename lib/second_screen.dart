@@ -14,12 +14,32 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
     (index) => String.fromCharCode(65 + index),
   );
 
+  @override
+  void initState() {
+    super.initState();
+    letters.shuffle();
+  }
+
   // 2. Ebben a Set-ben (halmazban) tároljuk azokat a betűket, amiket már felfordított a játékos
   final Set<String> revealedLetters = {};
+  String? firstSelectedLetter;
+  String? secondSelectedLetter;
+  bool isChecking = false;
+  bool isError = false;
 
   Color cardLetterColor = Colors.blueAccent;
   Color cardFrameColor = Colors.lightBlue;
   Color shadedBox = Colors.black87;
+
+  // Inverz háttérhez függcény
+  Color getInvertedColor(Color color) {
+    final int alpha = (color.a * 255).round();
+    final int red = (color.r * 255).round();
+    final int green = (color.g * 255).round();
+    final int blue = (color.b * 255).round();
+
+    return Color.fromARGB(alpha, 255 - red, 255 - green, 255 - blue);
+  }
 
   @override
   Widget build(BuildContext context) {
