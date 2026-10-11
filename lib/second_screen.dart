@@ -19,7 +19,7 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
 
   Color cardLetterColor = Colors.blueAccent;
   Color cardFrameColor = Colors.lightBlue;
-  Color shadedBox = Colors.black87
+  Color shadedBox = Colors.black87;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +34,59 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
         title: const Text('Letter Finder Grid'),
         backgroundColor: cardLetterColor,
         centerTitle: true,
+        actions: [
+          PopupMenuButton<Color>(
+            icon: const Icon(Icons.palette),
+            onSelected: (Color selectedColor) {
+              setState(() {
+                cardLetterColor = selectedColor;
+                cardFrameColor = selectedColor;
+              });
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem(
+                value: Colors.blueAccent,
+                child: Row(
+                  children: [
+                    Icon(Icons.circle, color: Colors.blueAccent, size: 16),
+                    SizedBox(width: 10),
+                    Text('Blue'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: Colors.teal,
+                child: Row(
+                  children: [
+                    Icon(Icons.circle, color: Colors.teal, size: 16),
+                    SizedBox(width: 10),
+                    Text('Teal'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: Colors.deepPurple,
+                child: Row(
+                  children: [
+                    Icon(Icons.circle, color: Colors.deepPurple, size: 16),
+                    SizedBox(width: 10),
+                    Text('Purple'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: Colors.amber,
+                child: Row(
+                  children: [
+                    Icon(Icons.circle, color: Colors.amber, size: 16),
+                    SizedBox(width: 10),
+                    Text('Amber'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
