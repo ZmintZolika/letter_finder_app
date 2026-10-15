@@ -4,6 +4,15 @@ import 'package:letter_finder_app/second_screen.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  void navigateToLetterGridScreen(BuildContext context, int count) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LetterGridScreen(boardSize: count),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,12 +33,8 @@ class HomeScreen extends StatelessWidget {
               height: 16,
             ), // Kis távolság a szöveg és a gomb között
             ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (ctx) => const LetterGridScreen()),
-                );
-              },
-              child: const Text('Kattints ide!'),
+              onPressed: () => navigateToLetterGridScreen(context, 10),
+              child: const Text('10 letters'),
             ),
           ],
         ),

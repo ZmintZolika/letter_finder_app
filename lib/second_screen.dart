@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'func.dart';
+
 class LetterGridScreen extends StatefulWidget {
-  const LetterGridScreen({super.key});
+  const LetterGridScreen({super.key, required this.boardSize});
+
+  final int boardSize;
 
   @override
   State<LetterGridScreen> createState() => _LetterGridScreenState();
@@ -9,8 +13,8 @@ class LetterGridScreen extends StatefulWidget {
 
 class _LetterGridScreenState extends State<LetterGridScreen> {
   // 1. Az 'A'-tól 'Z'-ig tartó lista
-  final List<String> letters = List.generate(
-    26,
+  late final List<String> letters = List.generate(
+    widget.boardSize,
     (index) => String.fromCharCode(65 + index),
   );
 
@@ -29,6 +33,7 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
 
   Color cardLetterColor = Colors.blueAccent;
   Color cardFrameColor = Colors.lightBlue;
+  Color selectedColor = Colors.red;
   Color get shadedBox => cardLetterColor;
 
   // Inverz háttérhez függcény
@@ -120,12 +125,50 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
             final bool isRevealed = revealedLetters.contains(letter);
 
             return InkWell(
-              onTap: () {
-                // Ha még nincs felfordítva, hozzáadjuk és újrarajzoljuk a képernyőt
-                if (!isRevealed) {
+              onTap: () async {
+                // Ha nem értelmes helyre nyomnak akkor ne csináljon semmit
+                if (isRevealed || letter == firstSelectedLetter) return;
+
+                //Ha még nem választott első betűt
+                if (firstSelectedLetter == null) {
                   setState(() {
-                    revealedLetters.add(letter);
+                    firstSelectedLetter = letter;
+                    //revealedLetters.add(firstSelectedLetter!);
                   });
+                  return;
+                }
+
+                //Ha már van első betű
+                if (firstSelectedLetter != null &&
+                    secondSelectedLetter == null) {
+                  setState(() {
+                    secondSelectedLetter = letter;
+                    //revealedLetters.add(secondSelectedLetter!);
+                  });
+
+                  if (firstSelectedLetter != null &&
+                      secondSelectedLetter != null &&
+                      (secondSelectedLetter!.codeUnitAt(0) -
+                                  firstSelectedLetter!.codeUnitAt(0))
+                              .abs() ==
+                          1) {
+                    setState(() {
+                      revealedLetters.add(firstSelectedLetter!);
+                      revealedLetters.add(secondSelectedLetter!);
+                      firstSelectedLetter = null;
+                      secondSelectedLetter = null;
+                      return;
+                    });
+                  } else if (secondSelectedLetter != null) {
+                    Future.delayed(const Duration(seconds: 1), () {
+                      setState(() {
+                        revealedLetters.remove(firstSelectedLetter);
+                        revealedLetters.remove(secondSelectedLetter);
+                        firstSelectedLetter = null;
+                        secondSelectedLetter = null;
+                      });
+                    });
+                  }
                 }
               },
               borderRadius: BorderRadius.circular(12),
@@ -134,14 +177,28 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
                   milliseconds: 250,
                 ), // szép, sima színátmenet kattintáskor
                 decoration: BoxDecoration(
-                  // Lefordítva fekete, felfordítva világos lila
-                  color: isRevealed
+                  // Lefordítva fekete, felfordítva színes
+                  color:
+                      isRevealed ||
+                          isThisLetter(
+                            firstSelectedLetter,
+                            secondSelectedLetter,
+                            letter,
+                          )
                       ? Colors.deepPurple.shade50
                       : cardFrameColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isRevealed ? cardFrameColor : shadedBox,
-                    width: 2,
+                    color: isRevealed
+                        ? cardFrameColor
+                        : isThisLetter(
+                            firstSelectedLetter,
+                            secondSelectedLetter,
+                            letter,
+                          )
+                        ? selectedColor
+                        : shadedBox,
+                    width: 5,
                   ),
                   boxShadow: const [
                     BoxShadow(
@@ -153,7 +210,13 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
                 ),
                 alignment: Alignment.center,
                 // Ha fel van fedve, megjelenik a betű, ha nincs, üres marad
-                child: isRevealed
+                child:
+                    isRevealed ||
+                        isThisLetter(
+                          firstSelectedLetter,
+                          secondSelectedLetter,
+                          letter,
+                        )
                     ? Text(
                         letter,
                         style: TextStyle(
