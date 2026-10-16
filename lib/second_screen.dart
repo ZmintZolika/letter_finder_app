@@ -141,6 +141,7 @@ class _FlipNextLetterState extends State<FlipNextLetter> {
                       !isHaveNextLetter(
                         firstSelectedLetter!,
                         revealedLetters,
+                        widget.boardSize,
                       )) {
                     setState(() {
                       revealedLetters.add(firstSelectedLetter!);
