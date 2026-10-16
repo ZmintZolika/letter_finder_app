@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 import 'func.dart';
 
-class LetterGridScreen extends StatefulWidget {
-  const LetterGridScreen({super.key, required this.boardSize});
+class FlipNextLetter extends StatefulWidget {
+  const FlipNextLetter({super.key, required this.boardSize});
 
   final int boardSize;
 
   @override
-  State<LetterGridScreen> createState() => _LetterGridScreenState();
+  State<FlipNextLetter> createState() => _FlipNextLetterState();
 }
 
-class _LetterGridScreenState extends State<LetterGridScreen> {
+class _FlipNextLetterState extends State<FlipNextLetter> {
   // 1. Az 'A'-tól 'Z'-ig tartó lista
   late final List<String> letters = List.generate(
     widget.boardSize,
@@ -125,7 +125,7 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
             final bool isRevealed = revealedLetters.contains(letter);
 
             return InkWell(
-              onTap: () async {
+              onTap: () {
                 // Ha nem értelmes helyre nyomnak akkor ne csináljon semmit
                 if (isRevealed || letter == firstSelectedLetter) return;
 
@@ -135,6 +135,18 @@ class _LetterGridScreenState extends State<LetterGridScreen> {
                     firstSelectedLetter = letter;
                     //revealedLetters.add(firstSelectedLetter!);
                   });
+
+                  //Itt nézem meg van-e az először felfordított betűnek szomszédja
+                  if ((firstSelectedLetter != null) &&
+                      !isHaveNextLetter(
+                        firstSelectedLetter!,
+                        revealedLetters,
+                      )) {
+                    setState(() {
+                      revealedLetters.add(firstSelectedLetter!);
+                      firstSelectedLetter = null;
+                    });
+                  }
                   return;
                 }
 

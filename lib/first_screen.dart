@@ -7,9 +7,7 @@ class HomeScreen extends StatelessWidget {
   void navigateToLetterGridScreen(BuildContext context, int count) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => LetterGridScreen(boardSize: count),
-      ),
+      MaterialPageRoute(builder: (context) => FlipNextLetter(boardSize: count)),
     );
   }
 
@@ -35,6 +33,20 @@ class HomeScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () => navigateToLetterGridScreen(context, 10),
               child: const Text('10 letters'),
+            ),
+            const SizedBox(
+              height: 16,
+            ), // Kis távolság a szöveg és a gomb között
+            ElevatedButton(
+              onPressed: () => navigateToLetterGridScreen(context, 18),
+              child: const Text('18 letters'),
+            ),
+            const SizedBox(
+              height: 16,
+            ), // Kis távolság a szöveg és a gomb között
+            ElevatedButton(
+              onPressed: () => navigateToLetterGridScreen(context, 26),
+              child: const Text('Full ABC'),
             ),
           ],
         ),
