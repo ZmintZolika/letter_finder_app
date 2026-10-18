@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 
 import 'func.dart';
+import 'theme_color_picker.dart';
+
+enum GameType { numberGame, letterGame }
 
 class FlipNextLetter extends StatefulWidget {
-  const FlipNextLetter({super.key, required this.boardSize});
-
   final int boardSize;
+
+  final Color themeColor;
+
+  final GameType gameType;
+
+  const FlipNextLetter({
+    super.key,
+    required this.boardSize,
+    required this.themeColor,
+    required this.gameType,
+  });
 
   @override
   State<FlipNextLetter> createState() => _FlipNextLetterState();
@@ -13,38 +25,31 @@ class FlipNextLetter extends StatefulWidget {
 
 class _FlipNextLetterState extends State<FlipNextLetter> {
   // 1. Az 'A'-tól 'Z'-ig tartó lista
-  late final List<String> letters = List.generate(
+
+  late final List<String> cards = List.generate(
     widget.boardSize,
-    (index) => String.fromCharCode(65 + index),
+    (index) => widget.gameType == GameType.letterGame
+        ? String.fromCharCode(65 + index)
+        : (index + 1).toString(),
   );
 
   @override
   void initState() {
     super.initState();
-    letters.shuffle();
+    cards.shuffle();
   }
 
   // 2. Ebben a Set-ben (halmazban) tároljuk azokat a betűket, amiket már felfordított a játékos
-  final Set<String> revealedLetters = {};
-  String? firstSelectedLetter;
-  String? secondSelectedLetter;
+  final Set<String> revealedCards = {};
+  String? firstSelectedCard;
+  String? secondSelectedCard;
   bool isChecking = false;
   bool isError = false;
 
-  Color cardLetterColor = Colors.blueAccent;
-  Color cardFrameColor = Colors.lightBlue;
+  late Color cardThemeColor = getLighterColorHSL(widget.themeColor);
+  late Color cardLetterColor = widget.themeColor;
   Color selectedColor = Colors.red;
   Color get shadedBox => cardLetterColor;
-
-  // Inverz háttérhez függcény
-  Color getInvertedColor(Color color) {
-    final int alpha = (color.a * 255).round();
-    final int red = (color.r * 255).round();
-    final int green = (color.g * 255).round();
-    final int blue = (color.b * 255).round();
-
-    return Color.fromARGB(alpha, 255 - red, 255 - green, 255 - blue);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,56 +65,12 @@ class _FlipNextLetterState extends State<FlipNextLetter> {
         backgroundColor: cardLetterColor,
         centerTitle: true,
         actions: [
-          PopupMenuButton<Color>(
-            icon: const Icon(Icons.palette),
-            onSelected: (Color selectedColor) {
+          ThemeColorPicker(
+            onColorSelected: (onColorSelected) {
               setState(() {
-                cardLetterColor = selectedColor;
-                cardFrameColor = selectedColor;
+                cardThemeColor = onColorSelected;
               });
             },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(
-                value: Colors.blueAccent,
-                child: Row(
-                  children: [
-                    Icon(Icons.circle, color: Colors.blueAccent, size: 16),
-                    SizedBox(width: 10),
-                    Text('Blue'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: Colors.teal,
-                child: Row(
-                  children: [
-                    Icon(Icons.circle, color: Colors.teal, size: 16),
-                    SizedBox(width: 10),
-                    Text('Teal'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: Colors.deepPurple,
-                child: Row(
-                  children: [
-                    Icon(Icons.circle, color: Colors.deepPurple, size: 16),
-                    SizedBox(width: 10),
-                    Text('Purple'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: Colors.amber,
-                child: Row(
-                  children: [
-                    Icon(Icons.circle, color: Colors.amber, size: 16),
-                    SizedBox(width: 10),
-                    Text('Amber'),
-                  ],
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -120,65 +81,65 @@ class _FlipNextLetterState extends State<FlipNextLetter> {
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
           childAspectRatio: 1.0,
-          children: letters.map((letter) {
+          children: cards.map((card) {
             // Megnézzük, hogy az adott betű már fel van-e fordítva
-            final bool isRevealed = revealedLetters.contains(letter);
+            final bool isRevealed = revealedCards.contains(card);
 
             return InkWell(
               onTap: () {
                 // Ha nem értelmes helyre nyomnak akkor ne csináljon semmit
-                if (isRevealed || letter == firstSelectedLetter) return;
+                if (isRevealed || card == firstSelectedCard) return;
 
                 //Ha még nem választott első betűt
-                if (firstSelectedLetter == null) {
+                if (firstSelectedCard == null) {
                   setState(() {
-                    firstSelectedLetter = letter;
+                    firstSelectedCard = card;
                     //revealedLetters.add(firstSelectedLetter!);
                   });
 
                   //Itt nézem meg van-e az először felfordított betűnek szomszédja
-                  if ((firstSelectedLetter != null) &&
-                      !isHaveNextLetter(
-                        firstSelectedLetter!,
-                        revealedLetters,
+                  if ((firstSelectedCard != null) &&
+                      !isHaveNextCard(
+                        firstSelectedCard!,
+                        revealedCards,
                         widget.boardSize,
+                        widget.gameType,
                       )) {
                     setState(() {
-                      revealedLetters.add(firstSelectedLetter!);
-                      firstSelectedLetter = null;
+                      revealedCards.add(firstSelectedCard!);
+                      firstSelectedCard = null;
                     });
                   }
                   return;
                 }
 
                 //Ha már van első betű
-                if (firstSelectedLetter != null &&
-                    secondSelectedLetter == null) {
+                if (firstSelectedCard != null && secondSelectedCard == null) {
                   setState(() {
-                    secondSelectedLetter = letter;
-                    //revealedLetters.add(secondSelectedLetter!);
+                    secondSelectedCard = card;
+                    //revealedCards.add(secondSelectedCard!);
                   });
 
-                  if (firstSelectedLetter != null &&
-                      secondSelectedLetter != null &&
-                      (secondSelectedLetter!.codeUnitAt(0) -
-                                  firstSelectedLetter!.codeUnitAt(0))
+                  if (firstSelectedCard != null &&
+                      secondSelectedCard != null &&
+                      (secondSelectedCard!.codeUnitAt(0) -
+                                  firstSelectedCard!.codeUnitAt(0))
                               .abs() ==
                           1) {
                     setState(() {
-                      revealedLetters.add(firstSelectedLetter!);
-                      revealedLetters.add(secondSelectedLetter!);
-                      firstSelectedLetter = null;
-                      secondSelectedLetter = null;
+                      revealedCards.add(firstSelectedCard!);
+                      revealedCards.add(secondSelectedCard!);
+                      firstSelectedCard = null;
+                      secondSelectedCard = null;
                       return;
                     });
-                  } else if (secondSelectedLetter != null) {
+                  } else if (secondSelectedCard != null) {
                     Future.delayed(const Duration(seconds: 1), () {
                       setState(() {
-                        revealedLetters.remove(firstSelectedLetter);
-                        revealedLetters.remove(secondSelectedLetter);
-                        firstSelectedLetter = null;
-                        secondSelectedLetter = null;
+                        revealedCards.remove(firstSelectedCard);
+                        revealedCards.remove(secondSelectedCard);
+                        firstSelectedCard = null;
+                        secondSelectedCard = null;
                       });
                     });
                   }
@@ -193,21 +154,21 @@ class _FlipNextLetterState extends State<FlipNextLetter> {
                   // Lefordítva fekete, felfordítva színes
                   color:
                       isRevealed ||
-                          isThisLetter(
-                            firstSelectedLetter,
-                            secondSelectedLetter,
-                            letter,
+                          isThisCard(
+                            firstSelectedCard,
+                            secondSelectedCard,
+                            card,
                           )
                       ? Colors.deepPurple.shade50
-                      : cardFrameColor,
+                      : cardThemeColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isRevealed
-                        ? cardFrameColor
-                        : isThisLetter(
-                            firstSelectedLetter,
-                            secondSelectedLetter,
-                            letter,
+                        ? cardThemeColor
+                        : isThisCard(
+                            firstSelectedCard,
+                            secondSelectedCard,
+                            card,
                           )
                         ? selectedColor
                         : shadedBox,
@@ -225,13 +186,9 @@ class _FlipNextLetterState extends State<FlipNextLetter> {
                 // Ha fel van fedve, megjelenik a betű, ha nincs, üres marad
                 child:
                     isRevealed ||
-                        isThisLetter(
-                          firstSelectedLetter,
-                          secondSelectedLetter,
-                          letter,
-                        )
+                        isThisCard(firstSelectedCard, secondSelectedCard, card)
                     ? Text(
-                        letter,
+                        card,
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
