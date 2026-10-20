@@ -5,14 +5,14 @@ import 'theme_color_picker.dart';
 
 enum GameType { numberGame, letterGame }
 
-class FlipNextLetter extends StatefulWidget {
+class FlipNextCard extends StatefulWidget {
   final int boardSize;
 
   final Color themeColor;
 
   final GameType gameType;
 
-  const FlipNextLetter({
+  const FlipNextCard({
     super.key,
     required this.boardSize,
     required this.themeColor,
@@ -20,10 +20,10 @@ class FlipNextLetter extends StatefulWidget {
   });
 
   @override
-  State<FlipNextLetter> createState() => _FlipNextLetterState();
+  State<FlipNextCard> createState() => _FlipNextCardState();
 }
 
-class _FlipNextLetterState extends State<FlipNextLetter> {
+class _FlipNextCardState extends State<FlipNextCard> {
   // 1. Az 'A'-tól 'Z'-ig tartó lista
 
   late final List<String> cards = List.generate(
