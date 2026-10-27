@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:letter_finder_app/letter_finder_screen.dart';
+import 'package:letter_finder_app/card_finder_screen.dart';
 
 //Valamelyik betű megegyezik-e az aktuálissal
 bool isThisCard(String? a, String? b, String? letter) =>
