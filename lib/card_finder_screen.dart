@@ -141,7 +141,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                       });
                     } else if (secondSelectedCard != null) {
                       isChecking = true; //védelem a késleltetés ideje alatti kattintgatásra
-                      Future.delayed(const Duration(seconds: 1), () {
+                      Future.delayed(const Duration(seconds: 2), () {
                         setState(() {
                           revealedCards.remove(firstSelectedCard);
                           revealedCards.remove(secondSelectedCard);
@@ -166,7 +166,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                     });
                   } else if (secondSelectedCard != null) {
                     isChecking = true; //védelem a késleltetés ideje alatti kattintgatásra
-                    Future.delayed(const Duration(seconds: 5), () {
+                    Future.delayed(const Duration(seconds: 2), () {
                       setState(() {
                         revealedCards.remove(firstSelectedCard);
                         revealedCards.remove(secondSelectedCard);
