@@ -61,7 +61,11 @@ class _FlipNextCardState extends State<FlipNextCard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Letter Finder Grid'),
+        title: Text(
+          widget.gameType == GameType.numberGame
+              ? 'Next to Numbers'
+              : 'Next to Letters',
+        ),
         backgroundColor: cardLetterColor,
         centerTitle: true,
         actions: [
@@ -88,7 +92,8 @@ class _FlipNextCardState extends State<FlipNextCard> {
             return InkWell(
               onTap: () {
                 // Ha nem értelmes helyre nyomnak akkor ne csináljon semmit
-                if (isRevealed || card == firstSelectedCard) return;
+                if (isChecking || isRevealed || card == firstSelectedCard)
+                  return;
 
                 //Ha még nem választott első betűt
                 if (firstSelectedCard == null) {
@@ -135,12 +140,14 @@ class _FlipNextCardState extends State<FlipNextCard> {
                         return;
                       });
                     } else if (secondSelectedCard != null) {
+                      isChecking = true; //védelem a késleltetés ideje alatti kattintgatásra
                       Future.delayed(const Duration(seconds: 1), () {
                         setState(() {
                           revealedCards.remove(firstSelectedCard);
                           revealedCards.remove(secondSelectedCard);
                           firstSelectedCard = null;
                           secondSelectedCard = null;
+                          isChecking = false; //védelem a késleltetés ideje alatti kattintgatásra
                         });
                       });
                     }
@@ -158,12 +165,14 @@ class _FlipNextCardState extends State<FlipNextCard> {
                       return;
                     });
                   } else if (secondSelectedCard != null) {
-                    Future.delayed(const Duration(seconds: 1), () {
+                    isChecking = true; //védelem a késleltetés ideje alatti kattintgatásra
+                    Future.delayed(const Duration(seconds: 5), () {
                       setState(() {
                         revealedCards.remove(firstSelectedCard);
                         revealedCards.remove(secondSelectedCard);
                         firstSelectedCard = null;
                         secondSelectedCard = null;
+                        isChecking = false; //védelem a késleltetés ideje alatti kattintgatásra
                       });
                     });
                   }
