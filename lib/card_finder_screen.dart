@@ -62,8 +62,8 @@ class _FlipNextCardState extends State<FlipNextCard> {
 
   bool hasGameStarted = false;
 
-  //időzítő logika
-
+  //IDŐZÍTŐ LOGIKA
+  //időzítő indítás
   void startGameTimer() {
     if (hasGameStarted) return;
 
@@ -75,6 +75,12 @@ class _FlipNextCardState extends State<FlipNextCard> {
     });
   }
 
+  //időzítő leállítás
+  void stopGameTimer() {
+    stopwatch.stop();
+    refreshTimer?.cancel();
+  }
+
   //eltelt idő kijelzése getter
   String get elapsedTimeText {
     final elapsed = stopwatch.elapsed;
@@ -83,6 +89,13 @@ class _FlipNextCardState extends State<FlipNextCard> {
     final seconds = (elapsed.inSeconds % 60).toString().padLeft(2, '0');
 
     return '$minutes:$seconds';
+  }
+
+  @override
+  void dispose() {
+    refreshTimer?.cancel();
+    stopwatch.stop();
+    super.dispose();
   }
 
   @override
@@ -155,6 +168,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                   if (revealedCards.length != widget.boardSize) {
                     return;
                   } else {
+                    stopGameTimer();
                     SummaryScreen(context);
                   }
                 }
@@ -182,6 +196,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                         if (revealedCards.length != cards.length) {
                           return;
                         } else {
+                          stopGameTimer();
                           SummaryScreen(context);
                         }
                       });
@@ -212,6 +227,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                       if (revealedCards.length != cards.length) {
                         return;
                       } else {
+                        stopGameTimer();
                         SummaryScreen(context);
                       }
                     });
