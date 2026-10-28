@@ -108,13 +108,26 @@ class _FlipNextCardState extends State<FlipNextCard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.gameType == GameType.numberGame
-              ? 'NextFinder - Numbers'
-              : 'NextFinder - Letters',
-        ),
-        backgroundColor: cardLetterColor,
         centerTitle: true,
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              widget.gameType == GameType.numberGame
+                  ? 'NextFinder - Numbers'
+                  : 'NextFinder - Letters',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'Elapsed Time: $elapsedTimeText',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+
         actions: [
           ThemeColorPicker(
             onColorSelected: (onColorSelected) {
@@ -169,7 +182,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                     return;
                   } else {
                     stopGameTimer();
-                    SummaryScreen(context);
+                    SummaryScreen(context, elapsedTimeText);
                   }
                 }
 
@@ -197,7 +210,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                           return;
                         } else {
                           stopGameTimer();
-                          SummaryScreen(context);
+                          SummaryScreen(context, elapsedTimeText);
                         }
                       });
                     } else if (secondSelectedCard != null) {
@@ -228,7 +241,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                         return;
                       } else {
                         stopGameTimer();
-                        SummaryScreen(context);
+                        SummaryScreen(context, elapsedTimeText);
                       }
                     });
                   } else if (secondSelectedCard != null) {
@@ -301,7 +314,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
           }).toList(),
         ),
       ),
-      bottomNavigationBar: SafeArea(
+      /*bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Text(
@@ -310,7 +323,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
         ),
-      ),
+      ),*/
     );
   }
 }
