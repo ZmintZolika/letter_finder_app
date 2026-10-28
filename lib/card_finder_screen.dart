@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'func.dart';
 import 'theme_color_picker.dart';
+import 'summary_screen.dart';
 
 enum GameType { numberGame, letterGame }
 
@@ -39,7 +40,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
     cards.shuffle();
   }
 
-  // 2. Ebben a Set-ben (halmazban) tároljuk azokat a betűket, amiket már felfordított a játékos
+  //ebben a Set-ben tároljuk azokat a betűket, amiket már felfordított a játékos
   final Set<String> revealedCards = {};
   String? firstSelectedCard;
   String? secondSelectedCard;
@@ -95,10 +96,6 @@ class _FlipNextCardState extends State<FlipNextCard> {
                 if (isChecking || isRevealed || card == firstSelectedCard)
                   return;
 
-                if (cards.length == widget.boardSize) {
-                  //SummaryScreen;
-                }
-
                 //Ha még nem választott első betűt
                 if (firstSelectedCard == null) {
                   setState(() {
@@ -119,7 +116,12 @@ class _FlipNextCardState extends State<FlipNextCard> {
                       firstSelectedCard = null;
                     });
                   }
-                  return;
+                  //session vége vizsgálat, és összegző megjelenítése
+                  if (revealedCards.length != widget.boardSize) {
+                    return;
+                  } else {
+                    SummaryScreen(context);
+                  }
                 }
 
                 //Ha már van első betű
@@ -141,7 +143,12 @@ class _FlipNextCardState extends State<FlipNextCard> {
                         revealedCards.add(secondSelectedCard!);
                         firstSelectedCard = null;
                         secondSelectedCard = null;
-                        return;
+                        //session vége vizsgálat, és összegző megjelenítése
+                        if (revealedCards.length != cards.length) {
+                          return;
+                        } else {
+                          SummaryScreen(context);
+                        }
                       });
                     } else if (secondSelectedCard != null) {
                       isChecking = true; //védelem a késleltetés ideje alatti kattintgatásra
@@ -166,7 +173,12 @@ class _FlipNextCardState extends State<FlipNextCard> {
                       revealedCards.add(secondSelectedCard!);
                       firstSelectedCard = null;
                       secondSelectedCard = null;
-                      return;
+                      //session vége vizsgálat, és összegző megjelenítése
+                      if (revealedCards.length != cards.length) {
+                        return;
+                      } else {
+                        SummaryScreen(context);
+                      }
                     });
                   } else if (secondSelectedCard != null) {
                     isChecking = true; //védelem a késleltetés ideje alatti kattintgatásra
