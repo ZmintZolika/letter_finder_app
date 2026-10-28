@@ -95,6 +95,10 @@ class _FlipNextCardState extends State<FlipNextCard> {
                 if (isChecking || isRevealed || card == firstSelectedCard)
                   return;
 
+                if (cards.length == widget.boardSize) {
+                  //EndGameScreen;
+                }
+
                 //Ha még nem választott első betűt
                 if (firstSelectedCard == null) {
                   setState(() {
