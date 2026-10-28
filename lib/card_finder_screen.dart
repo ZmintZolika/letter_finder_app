@@ -63,8 +63,8 @@ class _FlipNextCardState extends State<FlipNextCard> {
       appBar: AppBar(
         title: Text(
           widget.gameType == GameType.numberGame
-              ? 'Next to Numbers'
-              : 'Next to Letters',
+              ? 'NextFinder - Numbers'
+              : 'NextFinder - Letters',
         ),
         backgroundColor: cardLetterColor,
         centerTitle: true,
@@ -96,7 +96,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                   return;
 
                 if (cards.length == widget.boardSize) {
-                  //EndGameScreen;
+                  //SummaryScreen;
                 }
 
                 //Ha még nem választott első betűt

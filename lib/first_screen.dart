@@ -11,7 +11,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  void navigateToLetterFinderScreen(BuildContext context, int count, gameType) {
+  void navigateToCardFinderScreen(BuildContext context, int count, gameType) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: appThemeColor,
       appBar: AppBar(
         title: const Text(
-          'Next to Meet U',
+          'NextFinder',
           style: TextStyle(color: Color.fromARGB(255, 51, 159, 248)),
         ),
         centerTitle: true,
@@ -56,33 +56,24 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 16,
             ), // Kis távolság a szöveg és a gomb között
             ElevatedButton(
-              onPressed: () => navigateToLetterFinderScreen(
-                context,
-                10,
-                GameType.numberGame,
-              ),
+              onPressed: () =>
+                  navigateToCardFinderScreen(context, 10, GameType.numberGame),
               child: const Text('10 numbers'),
             ),
             const SizedBox(
               height: 16,
             ), // Kis távolság a szöveg és a gomb között
             ElevatedButton(
-              onPressed: () => navigateToLetterFinderScreen(
-                context,
-                18,
-                GameType.numberGame,
-              ),
+              onPressed: () =>
+                  navigateToCardFinderScreen(context, 18, GameType.numberGame),
               child: const Text('18 numbers'),
             ),
             const SizedBox(
               height: 16,
             ), // Kis távolság a szöveg és a gomb között
             ElevatedButton(
-              onPressed: () => navigateToLetterFinderScreen(
-                context,
-                26,
-                GameType.numberGame,
-              ),
+              onPressed: () =>
+                  navigateToCardFinderScreen(context, 26, GameType.numberGame),
               child: const Text('26 numbers'),
             ),
             const SizedBox(
@@ -93,33 +84,24 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 16,
             ), // Kis távolság a szöveg és a gomb között
             ElevatedButton(
-              onPressed: () => navigateToLetterFinderScreen(
-                context,
-                10,
-                GameType.letterGame,
-              ),
+              onPressed: () =>
+                  navigateToCardFinderScreen(context, 10, GameType.letterGame),
               child: const Text('10 letters'),
             ),
             const SizedBox(
               height: 16,
             ), // Kis távolság a szöveg és a gomb között
             ElevatedButton(
-              onPressed: () => navigateToLetterFinderScreen(
-                context,
-                18,
-                GameType.letterGame,
-              ),
+              onPressed: () =>
+                  navigateToCardFinderScreen(context, 18, GameType.letterGame),
               child: const Text('18 letters'),
             ),
             const SizedBox(
               height: 16,
             ), // Kis távolság a szöveg és a gomb között
             ElevatedButton(
-              onPressed: () => navigateToLetterFinderScreen(
-                context,
-                26,
-                GameType.letterGame,
-              ),
+              onPressed: () =>
+                  navigateToCardFinderScreen(context, 26, GameType.letterGame),
               child: const Text('Full ABC'),
             ),
           ],
