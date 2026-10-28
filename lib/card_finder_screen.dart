@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'dart:async';
+
 import 'func.dart';
 import 'theme_color_picker.dart';
 import 'summary_screen.dart';
@@ -47,10 +49,41 @@ class _FlipNextCardState extends State<FlipNextCard> {
   bool isChecking = false;
   bool isError = false;
 
+  //játék színeinek beállítása
+
   late Color cardThemeColor = getLighterColorHSL(widget.themeColor);
   late Color cardLetterColor = widget.themeColor;
   Color selectedColor = Colors.red;
   Color get shadedBox => cardLetterColor;
+
+  //időmérő előkészítése
+  final Stopwatch stopwatch = Stopwatch();
+  Timer? refreshTimer;
+
+  bool hasGameStarted = false;
+
+  //időzítő logika
+
+  void startGameTimer() {
+    if (hasGameStarted) return;
+
+    hasGameStarted = true;
+    stopwatch.start();
+
+    refreshTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {});
+    });
+  }
+
+  //eltelt idő kijelzése getter
+  String get elapsedTimeText {
+    final elapsed = stopwatch.elapsed;
+
+    final minutes = elapsed.inMinutes.toString().padLeft(2, '0');
+    final seconds = (elapsed.inSeconds % 60).toString().padLeft(2, '0');
+
+    return '$minutes:$seconds';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +128,8 @@ class _FlipNextCardState extends State<FlipNextCard> {
                 // Ha nem értelmes helyre nyomnak akkor ne csináljon semmit
                 if (isChecking || isRevealed || card == firstSelectedCard)
                   return;
+
+                startGameTimer();
 
                 //Ha még nem választott első betűt
                 if (firstSelectedCard == null) {
@@ -248,6 +283,16 @@ class _FlipNextCardState extends State<FlipNextCard> {
               ),
             );
           }).toList(),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            'Elapsed Time: $elapsedTimeText',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
         ),
       ),
     );
