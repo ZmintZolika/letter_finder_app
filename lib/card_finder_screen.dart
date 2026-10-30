@@ -81,6 +81,16 @@ class _FlipNextCardState extends State<FlipNextCard> {
     refreshTimer?.cancel();
   }
 
+  //időzítő reset
+  void resetGameTimer() {
+    stopwatch
+      ..stop()
+      ..reset();
+    refreshTimer?.cancel();
+    hasGameStarted = false;
+    setState(() {});
+  }
+
   //eltelt idő kijelzése getter
   String get elapsedTimeText {
     final elapsed = stopwatch.elapsed;
@@ -96,6 +106,11 @@ class _FlipNextCardState extends State<FlipNextCard> {
     refreshTimer?.cancel();
     stopwatch.stop();
     super.dispose();
+  }
+
+  //reset game logika
+  void onPlayAgain() {
+    //ide a GAME RESET jön majd
   }
 
   @override
@@ -182,7 +197,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                     return;
                   } else {
                     stopGameTimer();
-                    SummaryScreen(context, elapsedTimeText);
+                    summaryScreen(context, elapsedTimeText, onPlayAgain);
                   }
                 }
 
@@ -210,7 +225,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                           return;
                         } else {
                           stopGameTimer();
-                          SummaryScreen(context, elapsedTimeText);
+                          summaryScreen(context, elapsedTimeText, onPlayAgain);
                         }
                       });
                     } else if (secondSelectedCard != null) {
@@ -241,7 +256,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                         return;
                       } else {
                         stopGameTimer();
-                        SummaryScreen(context, elapsedTimeText);
+                        summaryScreen(context, elapsedTimeText, onPlayAgain);
                       }
                     });
                   } else if (secondSelectedCard != null) {

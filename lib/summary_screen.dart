@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
-void SummaryScreen(BuildContext context, String elapsedTime) {
+void summaryScreen(
+  BuildContext context,
+  String elapsedTime,
+  VoidCallback onPlayAgain,
+) {
   showModalBottomSheet<void>(
     context: context,
+    isDismissible: false, // háttérre kattintás nem zár be
+    enableDrag: false,
     isScrollControlled: true,
     backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
