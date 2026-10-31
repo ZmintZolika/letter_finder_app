@@ -85,6 +85,27 @@ void summaryScreen(
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(
+                    sheetContext,
+                  ); // 1. Bezárja a felugró summary ablakot
+                  Navigator.pop(
+                    context,
+                  ); // 2. Kilép a játékból vissza a HomeScreen-re
+                },
+                icon: const Icon(Icons.home_rounded),
+                label: const Text('Main Screen'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.deepPurple,
+                  side: const BorderSide(color: Colors.deepPurple),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 14,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

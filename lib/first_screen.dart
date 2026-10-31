@@ -12,8 +12,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  void navigateToCardFinderScreen(BuildContext context, int count, gameType) {
-    Navigator.push(
+  Future<void> navigateToCardFinderScreen(
+    BuildContext context,
+    int count,
+    gameType,
+  ) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => FlipNextCard(
@@ -23,9 +27,33 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+    loadScore();
   }
 
   Color appThemeColor = Colors.blueAccent;
+  Map<String, int?> bestTimes = {}; // Ebben lesz mind a 6 játékmód ideje
+
+  @override
+  void initState() {
+    super.initState();
+    loadScore();
+  }
+
+  Future<void> loadScore() async {
+    final Map<String, int?> loadedScores = {};
+
+    // Végigmegyünk a 2 játéktípuson és a 3 táblaméreten (2 x 3 = 6 mód)
+    for (final type in GameType.values) {
+      for (final size in [10, 18, 26]) {
+        final key = scoreKey(type, size);
+        loadedScores[key] = await getBestTime(type, size);
+      }
+    }
+
+    setState(() {
+      bestTimes = loadedScores;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,12 +84,13 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(
               height: 16,
             ), // Kis távolság a szöveg és a gomb között
-            Text(scoreKey(GameType.numberGame, 10)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () =>
                   navigateToCardFinderScreen(context, 10, GameType.numberGame),
-              child: const Text('10 numbers'),
+              child: Text(
+                '10 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 10)])}',
+              ),
             ),
             const SizedBox(
               height: 16,
@@ -69,7 +98,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ElevatedButton(
               onPressed: () =>
                   navigateToCardFinderScreen(context, 18, GameType.numberGame),
-              child: const Text('18 numbers'),
+              child: Text(
+                '18 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 18)])}',
+              ),
             ),
             const SizedBox(
               height: 16,
@@ -77,7 +108,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ElevatedButton(
               onPressed: () =>
                   navigateToCardFinderScreen(context, 26, GameType.numberGame),
-              child: const Text('26 numbers'),
+              child: Text(
+                '26 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 26)])}',
+              ),
             ),
             const SizedBox(
               height: 30,
@@ -89,7 +122,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ElevatedButton(
               onPressed: () =>
                   navigateToCardFinderScreen(context, 10, GameType.letterGame),
-              child: const Text('10 letters'),
+              child: Text(
+                '10 Letters - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 10)])}',
+              ),
             ),
             const SizedBox(
               height: 16,
@@ -97,7 +132,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ElevatedButton(
               onPressed: () =>
                   navigateToCardFinderScreen(context, 18, GameType.letterGame),
-              child: const Text('18 letters'),
+              child: Text(
+                '18 Letters - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 18)])}',
+              ),
             ),
             const SizedBox(
               height: 16,
@@ -105,7 +142,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ElevatedButton(
               onPressed: () =>
                   navigateToCardFinderScreen(context, 26, GameType.letterGame),
-              child: const Text('Full ABC'),
+              child: Text(
+                'Full ABC - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 26)])}',
+              ),
             ),
           ],
         ),

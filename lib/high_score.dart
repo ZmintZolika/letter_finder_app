@@ -34,3 +34,12 @@ Future<int?> getBestTime(GameType gameType, int boardSize) async {
     key,
   ); // Visszaadja a másodpercet, vagy null-t, ha még nem játszották
 }
+
+String formatBestTime(int? totalSeconds) {
+  if (totalSeconds == null) return '--:--';
+
+  final minutes = (totalSeconds ~/ 60).toString().padLeft(2, '0');
+  final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
+
+  return '$minutes:$seconds';
+}
