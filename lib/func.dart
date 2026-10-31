@@ -12,7 +12,9 @@ bool isHaveNextCard(String a, Set<String> list, boardSize, gameType) {
     int aCode = a.codeUnitAt(0);
     Set<int> codeList = {};
 
-    list.forEach((i) => codeList.add(i.codeUnitAt(0)));
+    for (var i in list) {
+      codeList.add(i.codeUnitAt(0));
+    }
 
     if (aCode == 65) return !codeList.contains(aCode + 1);
     if (aCode == 65 + boardSize - 1) return !codeList.contains(aCode - 1);
@@ -22,7 +24,9 @@ bool isHaveNextCard(String a, Set<String> list, boardSize, gameType) {
     int aNum = int.parse(a);
     Set<int> numList = {};
 
-    list.forEach((i) => numList.add(int.parse(i)));
+    for (var i in list) {
+      numList.add(int.parse(i));
+    }
 
     if (aNum == 1) return !numList.contains(aNum + 1);
     if (aNum == boardSize) return !numList.contains(aNum - 1);

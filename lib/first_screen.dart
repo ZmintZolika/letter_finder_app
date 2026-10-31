@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:letter_finder_app/card_finder_screen.dart';
 
 import 'theme_color_picker.dart';
+import 'high_score.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -55,6 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(
               height: 16,
             ), // Kis távolság a szöveg és a gomb között
+            Text(scoreKey(GameType.numberGame, 10)),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () =>
                   navigateToCardFinderScreen(context, 10, GameType.numberGame),

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:async';
@@ -172,8 +171,9 @@ class _FlipNextCardState extends State<FlipNextCard> {
             return InkWell(
               onTap: () {
                 // Ha nem értelmes helyre nyomnak akkor ne csináljon semmit
-                if (isChecking || isRevealed || card == firstSelectedCard)
+                if (isChecking || isRevealed || card == firstSelectedCard) {
                   return;
+                }
 
                 startGameTimer();
 
