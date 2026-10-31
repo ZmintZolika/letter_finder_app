@@ -53,3 +53,33 @@ Color getLighterColorHSL(Color color, [double amount = 0.2]) {
 
   return hslColor.withLightness(newLightness).toColor();
 }
+
+// 1. Játékszabályzat felugró ablak (AlertDialog)
+void showGameRules(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.help_outline_rounded, color: Colors.deepPurple),
+          SizedBox(width: 8),
+          Text('How to Play'),
+        ],
+      ),
+      content: const Text(
+        'Find and tap the cards sequentially in ascending order!\n\n'
+        '• Numbers: Tap from 1 to 10, 18, or 26.\n'
+        '• Letters: Tap from A to Z.\n\n'
+        'The timer starts on your first tap. Beat your best time!',
+        style: TextStyle(fontSize: 15, height: 1.4),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Got it!'),
+        ),
+      ],
+    ),
+  );
+}

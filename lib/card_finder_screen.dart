@@ -128,6 +128,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: cardThemeColor,
         centerTitle: true,
         title: Column(
           mainAxisSize: MainAxisSize.min,
@@ -138,101 +139,109 @@ class _FlipNextCardState extends State<FlipNextCard> {
               widget.gameType == GameType.numberGame
                   ? 'NextFinder - Numbers'
                   : 'NextFinder - Letters',
-              style: const TextStyle(fontSize: 18),
+              style: TextStyle(
+                fontSize: 18,
+                color:
+                    ThemeData.estimateBrightnessForColor(cardThemeColor) ==
+                        Brightness.dark
+                    ? Colors.white
+                    : Colors.black87,
+              ),
             ),
             const SizedBox(height: 2),
             Text(
               'Elapsed Time: $elapsedTimeText',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color:
+                    ThemeData.estimateBrightnessForColor(cardThemeColor) ==
+                        Brightness.dark
+                    ? Colors.white
+                    : Colors.black87,
+              ),
             ),
           ],
         ),
 
         actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline_rounded),
+            onPressed: () => showGameRules(context),
+            tooltip: 'Game Rules',
+          ),
           ThemeColorPicker(
             onColorSelected: (onColorSelected) {
               setState(() {
-                cardThemeColor = onColorSelected;
+                cardThemeColor = onColorSelected!;
+                cardLetterColor = onColorSelected;
               });
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: GridView.count(
-          crossAxisCount: columnCount,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 1.0,
-          children: cards.map((card) {
-            // Megnézzük, hogy az adott betű már fel van-e fordítva
-            final bool isRevealed = revealedCards.contains(card);
+      body: Stack(
+        children: [
+          // 1. RÉTEG: A színezhető háttérkép alul
+          Positioned.fill(
+            child: ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                cardThemeColor, // Reagál a ThemeColorPicker-re!
+                BlendMode.modulate,
+              ),
+              child: Image.asset(
+                'assets/images/nextFinderBG.png',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
 
-            return InkWell(
-              onTap: () {
-                // Ha nem értelmes helyre nyomnak akkor ne csináljon semmit
-                if (isChecking || isRevealed || card == firstSelectedCard) {
-                  return;
-                }
+          // 2. RÉTEG: A meglévő GridView rács felül
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: GridView.count(
+                crossAxisCount: columnCount,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 1.0,
+                children: cards.map((card) {
+                  // Megnézzük, hogy az adott betű már fel van-e fordítva
+                  final bool isRevealed = revealedCards.contains(card);
 
-                startGameTimer();
+                  return InkWell(
+                    onTap: () {
+                      // Ha nem értelmes helyre nyomnak akkor ne csináljon semmit
+                      if (isChecking ||
+                          isRevealed ||
+                          card == firstSelectedCard) {
+                        return;
+                      }
 
-                //Ha még nem választott első betűt
-                if (firstSelectedCard == null) {
-                  setState(() {
-                    firstSelectedCard = card;
-                    //revealedLetters.add(firstSelectedLetter!);
-                  });
+                      startGameTimer();
 
-                  //Itt nézem meg van-e az először felfordított betűnek szomszédja
-                  if ((firstSelectedCard != null) &&
-                      !isHaveNextCard(
-                        firstSelectedCard!,
-                        revealedCards,
-                        widget.boardSize,
-                        widget.gameType,
-                      )) {
-                    setState(() {
-                      revealedCards.add(firstSelectedCard!);
-                      firstSelectedCard = null;
-                    });
-                  }
-                  //session vége vizsgálat, és összegző megjelenítése
-                  if (revealedCards.length != widget.boardSize) {
-                    return;
-                  } else {
-                    stopGameTimer();
-                    checkAndSaveBestTime(
-                      widget.gameType,
-                      widget.boardSize,
-                      stopwatch.elapsed.inSeconds,
-                    );
-                    summaryScreen(context, elapsedTimeText, onPlayAgain);
-                  }
-                }
+                      //Ha még nem választott első betűt
+                      if (firstSelectedCard == null) {
+                        setState(() {
+                          firstSelectedCard = card;
+                          //revealedLetters.add(firstSelectedLetter!);
+                        });
 
-                //Ha már van első betű
-                if (firstSelectedCard != null && secondSelectedCard == null) {
-                  setState(() {
-                    secondSelectedCard = card;
-                    //revealedLetters.add(secondSelectedLetter!);
-                  });
-
-                  if (widget.gameType == GameType.letterGame) {
-                    if (firstSelectedCard != null &&
-                        secondSelectedCard != null &&
-                        (secondSelectedCard!.codeUnitAt(0) -
-                                    firstSelectedCard!.codeUnitAt(0))
-                                .abs() ==
-                            1) {
-                      setState(() {
-                        revealedCards.add(firstSelectedCard!);
-                        revealedCards.add(secondSelectedCard!);
-                        firstSelectedCard = null;
-                        secondSelectedCard = null;
+                        //Itt nézem meg van-e az először felfordított betűnek szomszédja
+                        if ((firstSelectedCard != null) &&
+                            !isHaveNextCard(
+                              firstSelectedCard!,
+                              revealedCards,
+                              widget.boardSize,
+                              widget.gameType,
+                            )) {
+                          setState(() {
+                            revealedCards.add(firstSelectedCard!);
+                            firstSelectedCard = null;
+                          });
+                        }
                         //session vége vizsgálat, és összegző megjelenítése
-                        if (revealedCards.length != cards.length) {
+                        if (revealedCards.length != widget.boardSize) {
                           return;
                         } else {
                           stopGameTimer();
@@ -243,114 +252,160 @@ class _FlipNextCardState extends State<FlipNextCard> {
                           );
                           summaryScreen(context, elapsedTimeText, onPlayAgain);
                         }
-                      });
-                    } else if (secondSelectedCard != null) {
-                      isChecking = true; //védelem a késleltetés ideje alatti kattintgatásra
-                      Future.delayed(const Duration(seconds: 2), () {
-                        setState(() {
-                          revealedCards.remove(firstSelectedCard);
-                          revealedCards.remove(secondSelectedCard);
-                          firstSelectedCard = null;
-                          secondSelectedCard = null;
-                          isChecking = false; //védelem a késleltetés ideje alatti kattintgatásra
-                        });
-                      });
-                    }
-                  } else if (firstSelectedCard != null &&
-                      secondSelectedCard != null &&
-                      (int.parse(secondSelectedCard!) -
-                                  int.parse(firstSelectedCard!))
-                              .abs() ==
-                          1) {
-                    setState(() {
-                      revealedCards.add(firstSelectedCard!);
-                      revealedCards.add(secondSelectedCard!);
-                      firstSelectedCard = null;
-                      secondSelectedCard = null;
-                      //session vége vizsgálat, és összegző megjelenítése
-                      if (revealedCards.length != cards.length) {
-                        return;
-                      } else {
-                        stopGameTimer();
-                        checkAndSaveBestTime(
-                          widget.gameType,
-                          widget.boardSize,
-                          stopwatch.elapsed.inSeconds,
-                        );
-                        summaryScreen(context, elapsedTimeText, onPlayAgain);
                       }
-                    });
-                  } else if (secondSelectedCard != null) {
-                    isChecking = true; //védelem a késleltetés ideje alatti kattintgatásra
-                    Future.delayed(const Duration(seconds: 2), () {
-                      setState(() {
-                        revealedCards.remove(firstSelectedCard);
-                        revealedCards.remove(secondSelectedCard);
-                        firstSelectedCard = null;
-                        secondSelectedCard = null;
-                        isChecking = false; //védelem a késleltetés ideje alatti kattintgatásra
-                      });
-                    });
-                  }
-                }
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: AnimatedContainer(
-                duration: const Duration(
-                  milliseconds: 250,
-                ), // szép, sima színátmenet kattintáskor
-                decoration: BoxDecoration(
-                  // Lefordítva fekete, felfordítva színes
-                  color:
-                      isRevealed ||
-                          isThisCard(
-                            firstSelectedCard,
-                            secondSelectedCard,
-                            card,
-                          )
-                      ? Colors.deepPurple.shade50
-                      : cardThemeColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isRevealed
-                        ? cardThemeColor
-                        : isThisCard(
-                            firstSelectedCard,
-                            secondSelectedCard,
-                            card,
-                          )
-                        ? selectedColor
-                        : shadedBox,
-                    width: 5,
-                  ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 4,
-                      offset: Offset(2, 2),
-                    ),
-                  ],
-                ),
-                alignment: Alignment.center,
-                // Ha fel van fedve, megjelenik a betű, ha nincs, üres marad
-                child:
-                    isRevealed ||
-                        isThisCard(firstSelectedCard, secondSelectedCard, card)
-                    ? Text(
-                        card,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: cardLetterColor,
+
+                      //Ha már van első betű
+                      if (firstSelectedCard != null &&
+                          secondSelectedCard == null) {
+                        setState(() {
+                          secondSelectedCard = card;
+                          //revealedLetters.add(secondSelectedLetter!);
+                        });
+
+                        if (widget.gameType == GameType.letterGame) {
+                          if (firstSelectedCard != null &&
+                              secondSelectedCard != null &&
+                              (secondSelectedCard!.codeUnitAt(0) -
+                                          firstSelectedCard!.codeUnitAt(0))
+                                      .abs() ==
+                                  1) {
+                            setState(() {
+                              revealedCards.add(firstSelectedCard!);
+                              revealedCards.add(secondSelectedCard!);
+                              firstSelectedCard = null;
+                              secondSelectedCard = null;
+                              //session vége vizsgálat, és összegző megjelenítése
+                              if (revealedCards.length != cards.length) {
+                                return;
+                              } else {
+                                stopGameTimer();
+                                checkAndSaveBestTime(
+                                  widget.gameType,
+                                  widget.boardSize,
+                                  stopwatch.elapsed.inSeconds,
+                                );
+                                summaryScreen(
+                                  context,
+                                  elapsedTimeText,
+                                  onPlayAgain,
+                                );
+                              }
+                            });
+                          } else if (secondSelectedCard != null) {
+                            isChecking = true; //védelem a késleltetés ideje alatti kattintgatásra
+                            Future.delayed(const Duration(seconds: 2), () {
+                              setState(() {
+                                revealedCards.remove(firstSelectedCard);
+                                revealedCards.remove(secondSelectedCard);
+                                firstSelectedCard = null;
+                                secondSelectedCard = null;
+                                isChecking = false; //védelem a késleltetés ideje alatti kattintgatásra
+                              });
+                            });
+                          }
+                        } else if (firstSelectedCard != null &&
+                            secondSelectedCard != null &&
+                            (int.parse(secondSelectedCard!) -
+                                        int.parse(firstSelectedCard!))
+                                    .abs() ==
+                                1) {
+                          setState(() {
+                            revealedCards.add(firstSelectedCard!);
+                            revealedCards.add(secondSelectedCard!);
+                            firstSelectedCard = null;
+                            secondSelectedCard = null;
+                            //session vége vizsgálat, és összegző megjelenítése
+                            if (revealedCards.length != cards.length) {
+                              return;
+                            } else {
+                              stopGameTimer();
+                              checkAndSaveBestTime(
+                                widget.gameType,
+                                widget.boardSize,
+                                stopwatch.elapsed.inSeconds,
+                              );
+                              summaryScreen(
+                                context,
+                                elapsedTimeText,
+                                onPlayAgain,
+                              );
+                            }
+                          });
+                        } else if (secondSelectedCard != null) {
+                          isChecking = true; //védelem a késleltetés ideje alatti kattintgatásra
+                          Future.delayed(const Duration(seconds: 2), () {
+                            setState(() {
+                              revealedCards.remove(firstSelectedCard);
+                              revealedCards.remove(secondSelectedCard);
+                              firstSelectedCard = null;
+                              secondSelectedCard = null;
+                              isChecking = false; //védelem a késleltetés ideje alatti kattintgatásra
+                            });
+                          });
+                        }
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: AnimatedContainer(
+                      duration: const Duration(
+                        milliseconds: 250,
+                      ), // szép, sima színátmenet kattintáskor
+                      decoration: BoxDecoration(
+                        // Lefordítva fekete, felfordítva színes
+                        color:
+                            isRevealed ||
+                                isThisCard(
+                                  firstSelectedCard,
+                                  secondSelectedCard,
+                                  card,
+                                )
+                            ? Colors.deepPurple.shade50
+                            : cardThemeColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isRevealed
+                              ? cardThemeColor
+                              : isThisCard(
+                                  firstSelectedCard,
+                                  secondSelectedCard,
+                                  card,
+                                )
+                              ? selectedColor
+                              : shadedBox,
+                          width: 5,
                         ),
-                      )
-                    : null,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 4,
+                            offset: Offset(2, 2),
+                          ),
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      // Ha fel van fedve, megjelenik a betű, ha nincs, üres marad
+                      child:
+                          isRevealed ||
+                              isThisCard(
+                                firstSelectedCard,
+                                secondSelectedCard,
+                                card,
+                              )
+                          ? Text(
+                              card,
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: cardLetterColor,
+                              ),
+                            )
+                          : null,
+                    ),
+                  );
+                }).toList(),
               ),
-            );
-          }).toList(),
-        ),
-      ),
-      /*bottomNavigationBar: SafeArea(
+            ),
+            /*bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Text(
@@ -360,6 +415,9 @@ class _FlipNextCardState extends State<FlipNextCard> {
           ),
         ),
       ),*/
+          ),
+        ],
+      ),
     );
   }
 }

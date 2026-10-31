@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
 class ThemeColorPicker extends StatelessWidget {
-  final Function(Color) onColorSelected;
+  final Function(Color?) onColorSelected;
 
   const ThemeColorPicker({super.key, required this.onColorSelected});
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<Color>(
-      icon: const Icon(Icons.palette),
+      icon: Icon(Icons.palette),
+      color: Colors.white,
       onSelected: onColorSelected,
       itemBuilder: (context) => const [
         PopupMenuItem(

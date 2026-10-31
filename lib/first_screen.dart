@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:letter_finder_app/card_finder_screen.dart';
+import 'package:letter_finder_app/func.dart';
 
 import 'theme_color_picker.dart';
 import 'high_score.dart';
@@ -58,96 +59,150 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: appThemeColor,
       appBar: AppBar(
-        title: const Text(
+        backgroundColor: appThemeColor,
+        title: Text(
           'NextFinder',
-          style: TextStyle(color: Color.fromARGB(255, 51, 159, 248)),
+          style: TextStyle(
+            color:
+                ThemeData.estimateBrightnessForColor(appThemeColor) ==
+                    Brightness.dark
+                ? Colors.white
+                : Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline_rounded),
+            onPressed: () => showGameRules(context),
+            tooltip: 'Game Rules',
+          ),
           ThemeColorPicker(
             onColorSelected: (selectedColor) {
               setState(() {
-                appThemeColor = selectedColor;
+                appThemeColor = selectedColor!;
               });
             },
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize
-              .min, // Összehúzza az oszlopot, hogy pont középre kerüljön
-          children: [
-            const Text('Next to Numbers'),
-            const SizedBox(
-              height: 16,
-            ), // Kis távolság a szöveg és a gomb között
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () =>
-                  navigateToCardFinderScreen(context, 10, GameType.numberGame),
-              child: Text(
-                '10 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 10)])}',
+      // A body helyére egy Stack kerül:
+      body: Stack(
+        children: [
+          // 1. RÉTEG: A színezhető háttérkép alul
+          Positioned.fill(
+            child: ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                appThemeColor, // Ez reagál a ThemeColorPicker-re!
+                BlendMode.modulate,
+              ),
+              child: Image.asset(
+                'assets/images/nextFinderBG.png',
+                fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(
-              height: 16,
-            ), // Kis távolság a szöveg és a gomb között
-            ElevatedButton(
-              onPressed: () =>
-                  navigateToCardFinderScreen(context, 18, GameType.numberGame),
-              child: Text(
-                '18 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 18)])}',
+          ),
+
+          // 2. RÉTEG: A görgethető tartalom felül (gombok, feliratok)
+          Positioned.fill(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Next to Numbers'),
+                    const SizedBox(
+                      height: 16,
+                    ), // Kis távolság a szöveg és a gomb között
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => navigateToCardFinderScreen(
+                        context,
+                        10,
+                        GameType.numberGame,
+                      ),
+                      child: Text(
+                        '10 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 10)])}',
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ), // Kis távolság a szöveg és a gomb között
+                    ElevatedButton(
+                      onPressed: () => navigateToCardFinderScreen(
+                        context,
+                        18,
+                        GameType.numberGame,
+                      ),
+                      child: Text(
+                        '18 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 18)])}',
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ), // Kis távolság a szöveg és a gomb között
+                    ElevatedButton(
+                      onPressed: () => navigateToCardFinderScreen(
+                        context,
+                        26,
+                        GameType.numberGame,
+                      ),
+                      child: Text(
+                        '26 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 26)])}',
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ), // Kis távolság a szöveg és a gomb között
+                    const Text('Next to Letters'),
+                    const SizedBox(
+                      height: 16,
+                    ), // Kis távolság a szöveg és a gomb között
+                    ElevatedButton(
+                      onPressed: () => navigateToCardFinderScreen(
+                        context,
+                        10,
+                        GameType.letterGame,
+                      ),
+                      child: Text(
+                        '10 Letters - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 10)])}',
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ), // Kis távolság a szöveg és a gomb között
+                    ElevatedButton(
+                      onPressed: () => navigateToCardFinderScreen(
+                        context,
+                        18,
+                        GameType.letterGame,
+                      ),
+                      child: Text(
+                        '18 Letters - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 18)])}',
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ), // Kis távolság a szöveg és a gomb között
+                    ElevatedButton(
+                      onPressed: () => navigateToCardFinderScreen(
+                        context,
+                        26,
+                        GameType.letterGame,
+                      ),
+                      child: Text(
+                        'Full ABC - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 26)])}',
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(
-              height: 16,
-            ), // Kis távolság a szöveg és a gomb között
-            ElevatedButton(
-              onPressed: () =>
-                  navigateToCardFinderScreen(context, 26, GameType.numberGame),
-              child: Text(
-                '26 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 26)])}',
-              ),
-            ),
-            const SizedBox(
-              height: 30,
-            ), // Kis távolság a szöveg és a gomb között
-            const Text('Next to Letters'),
-            const SizedBox(
-              height: 16,
-            ), // Kis távolság a szöveg és a gomb között
-            ElevatedButton(
-              onPressed: () =>
-                  navigateToCardFinderScreen(context, 10, GameType.letterGame),
-              child: Text(
-                '10 Letters - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 10)])}',
-              ),
-            ),
-            const SizedBox(
-              height: 16,
-            ), // Kis távolság a szöveg és a gomb között
-            ElevatedButton(
-              onPressed: () =>
-                  navigateToCardFinderScreen(context, 18, GameType.letterGame),
-              child: Text(
-                '18 Letters - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 18)])}',
-              ),
-            ),
-            const SizedBox(
-              height: 16,
-            ), // Kis távolság a szöveg és a gomb között
-            ElevatedButton(
-              onPressed: () =>
-                  navigateToCardFinderScreen(context, 26, GameType.letterGame),
-              child: Text(
-                'Full ABC - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 26)])}',
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
