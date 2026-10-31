@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:letter_finder_app/high_score.dart';
 
 import 'dart:async';
 
@@ -202,6 +203,11 @@ class _FlipNextCardState extends State<FlipNextCard> {
                     return;
                   } else {
                     stopGameTimer();
+                    checkAndSaveBestTime(
+                      widget.gameType,
+                      widget.boardSize,
+                      stopwatch.elapsed.inSeconds,
+                    );
                     summaryScreen(context, elapsedTimeText, onPlayAgain);
                   }
                 }
@@ -230,6 +236,11 @@ class _FlipNextCardState extends State<FlipNextCard> {
                           return;
                         } else {
                           stopGameTimer();
+                          checkAndSaveBestTime(
+                            widget.gameType,
+                            widget.boardSize,
+                            stopwatch.elapsed.inSeconds,
+                          );
                           summaryScreen(context, elapsedTimeText, onPlayAgain);
                         }
                       });
@@ -261,6 +272,11 @@ class _FlipNextCardState extends State<FlipNextCard> {
                         return;
                       } else {
                         stopGameTimer();
+                        checkAndSaveBestTime(
+                          widget.gameType,
+                          widget.boardSize,
+                          stopwatch.elapsed.inSeconds,
+                        );
                         summaryScreen(context, elapsedTimeText, onPlayAgain);
                       }
                     });
