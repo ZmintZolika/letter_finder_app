@@ -371,7 +371,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                                   card,
                                 )
                               ? selectedColor
-                              : shadedBox,
+                              : getLighterColorHSL(shadedBox),
                           width: 5,
                         ),
                         boxShadow: const [
