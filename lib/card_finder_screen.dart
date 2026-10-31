@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:async';
@@ -43,7 +44,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
   }
 
   //ebben a Set-ben tároljuk azokat a betűket, amiket már felfordított a játékos
-  final Set<String> revealedCards = {};
+  Set<String> revealedCards = {};
   String? firstSelectedCard;
   String? secondSelectedCard;
   bool isChecking = false;
@@ -111,6 +112,10 @@ class _FlipNextCardState extends State<FlipNextCard> {
   //reset game logika
   void onPlayAgain() {
     //ide a GAME RESET jön majd
+    resetGameTimer();
+    revealedCards = {};
+    cards.shuffle();
+    Navigator.pop(context);
   }
 
   @override

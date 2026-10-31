@@ -73,9 +73,7 @@ void summaryScreen(
               ),
               const SizedBox(height: 24),
               FilledButton.icon(
-                onPressed: () {
-                  // Az újraindítás logikája később kerül ide.
-                },
+                onPressed: onPlayAgain,
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('Play Again'),
                 style: FilledButton.styleFrom(
