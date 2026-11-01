@@ -425,7 +425,7 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
               const SizedBox(height: 14),
               _buildRuleItem(
                 Icons.trending_up_rounded,
-                'Scaling Score & 5-Min Timer',
+                'Scaling Score & 2-Min Timer',
                 'Higher numbers grant more points per match. Race against the 5:00 countdown to set a new record!',
               ),
             ],
