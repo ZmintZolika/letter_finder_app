@@ -184,6 +184,62 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
     return cards.contains(number - 1) || cards.contains(number + 1);
   }
 
+  // Magányos kártya kezelése: felfordul, vár, majd eltűnik és frissül
+  void _handleLonelyCard(int index) {
+    _triggerHaptic(isMatch: true);
+    _playSparkleSound();
+
+    final int cardValue = cards[index];
+    final int earnedPoints = 50 + (cardValue * 5);
+
+    setState(() {
+      firstSelectedIndex = index; // Felfordítva tartja
+      isChecking = true;
+    });
+
+    // 1. Várunk egy picit, hogy a játékos lássa a felfordított kártyát (350ms)
+    Future.delayed(const Duration(milliseconds: 350), () {
+      if (!mounted) return;
+      setState(() {
+        score += earnedPoints;
+        lastEarnedPoints = earnedPoints;
+        poppingIndices.add(index); // Elindul az eltűnős effekt
+      });
+
+      _floatingScoreController.forward(from: 0.0);
+
+      if (score > bestScore) {
+        _saveBestScore();
+      }
+
+      // 2. Zsugorodás után kicseréljük és keverjük
+      Future.delayed(const Duration(milliseconds: 250), () {
+        if (!mounted) return;
+        setState(() {
+          poppingIndices.clear();
+
+          for (int i = 0; i < cards.length; i++) {
+            spawningIndices.add(i);
+          }
+
+          cards[index] = nextNumberToGenerate++;
+          cards.shuffle();
+
+          firstSelectedIndex = null;
+          isChecking = false;
+        });
+
+        // 3. Visszanövés
+        Future.delayed(const Duration(milliseconds: 150), () {
+          if (!mounted) return;
+          setState(() {
+            spawningIndices.clear();
+          });
+        });
+      });
+    });
+  }
+
   void _handleMatch(List<int> matchedIndices) {
     _triggerHaptic(isMatch: true);
     _playSparkleSound();
@@ -191,9 +247,7 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
     final int maxMatchedValue = matchedIndices
         .map((idx) => cards[idx])
         .reduce(math.max);
-    final int earnedPoints = matchedIndices.length == 2
-        ? 100 + (maxMatchedValue * 10)
-        : 50 + (maxMatchedValue * 5);
+    final int earnedPoints = 100 + (maxMatchedValue * 10);
 
     setState(() {
       score += earnedPoints;
@@ -208,18 +262,15 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
       _saveBestScore();
     }
 
-    // 1. Fázis: Eltűnő effekt (zsugorodás + fade)
     Future.delayed(const Duration(milliseconds: 250), () {
       if (!mounted) return;
       setState(() {
         poppingIndices.clear();
 
-        // Először megjelöljük mindegyik kártyát, hogy hátrafordítva/spawning módban legyenek
         for (int i = 0; i < cards.length; i++) {
           spawningIndices.add(i);
         }
 
-        // Cseréljük a páros elemeket újakra, majd keverjük a paklit
         for (final idx in matchedIndices) {
           cards[idx] = nextNumberToGenerate++;
         }
@@ -230,7 +281,6 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
         isChecking = false;
       });
 
-      // 2. Fázis: Amikor a kártyák már hátrafelé fordulva kis méretben vannak, engedjük felnőni őket
       Future.delayed(const Duration(milliseconds: 150), () {
         if (!mounted) return;
         setState(() {
@@ -253,14 +303,17 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
     _triggerHaptic(isMatch: false);
 
     if (firstSelectedIndex == null) {
+      final int selectedNumber = cards[index];
+
+      // Ha nincs szomszédja (magányos kártya), felfordítjuk és indítjuk az animációt!
+      if (!_hasNeighborOnBoard(selectedNumber)) {
+        _handleLonelyCard(index);
+        return;
+      }
+
       setState(() {
         firstSelectedIndex = index;
       });
-
-      final int selectedNumber = cards[index];
-      if (!_hasNeighborOnBoard(selectedNumber)) {
-        _handleMatch([index]);
-      }
       return;
     }
 
@@ -345,7 +398,7 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
               _buildRuleItem(
                 Icons.bolt_rounded,
                 'Lonely Cards Bonus',
-                'If you flip a card that has no neighbor currently on the board, it clears automatically and awards bonus points!',
+                'If you flip a card that has no neighbor, it flips, pauses, clears with an animation, and awards bonus points!',
               ),
               const SizedBox(height: 14),
               _buildRuleItem(
@@ -781,7 +834,6 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
                               return _InfinityAnimatedCard(
                                 key: ValueKey('slot_${index}_val_$cardValue'),
                                 label: cardValue.toString(),
-                                // Ha spawnol/keverődik, hátrafelé néz, így nem látszik a szám!
                                 isFaceUp:
                                     (isSelected || isPopping) && !isSpawning,
                                 isSelected: isSelected,

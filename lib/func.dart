@@ -58,28 +58,113 @@ Color getLighterColorHSL(Color color, [double amount = 0.2]) {
 void showGameRules(BuildContext context) {
   showDialog(
     context: context,
-    builder: (context) => AlertDialog(
+    builder: (dialogContext) => AlertDialog(
+      backgroundColor: Colors.grey.shade900,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: Colors.blueAccent.withValues(alpha: 0.7),
+          width: 2,
+        ),
+      ),
       title: const Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.help_outline_rounded, color: Colors.deepPurple),
-          SizedBox(width: 8),
-          Text('How to Play'),
+          Icon(Icons.help_outline_rounded, color: Colors.amberAccent, size: 28),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Game Rules',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ),
         ],
       ),
-      content: const Text(
-        'Find and tap the cards sequentially in ascending order!\n\n'
-        '• Numbers: Tap from 1 to 10, 18, or 26.\n'
-        '• Letters: Tap from A to Z.\n\n'
-        'The timer starts on your first tap. Beat your best time!',
-        style: TextStyle(fontSize: 15, height: 1.4),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildRuleItem(
+              Icons.filter_1_rounded,
+              'Classic Numbers & Letters',
+              'Find and tap the cards sequentially in ascending order (Numbers: 1 to 10/18/26, Letters: A to Z).',
+            ),
+            const SizedBox(height: 14),
+            _buildRuleItem(
+              Icons.all_inclusive_rounded,
+              'Next to Infinity Mode',
+              'Pair up adjacent numbers differing by 1, or tap lonely cards for bonus points. Endless replacements under a 5-minute timer!',
+            ),
+            const SizedBox(height: 14),
+            _buildRuleItem(
+              Icons.timer_outlined,
+              'Timer & Best Scores',
+              'The timer starts automatically on your first tap. Beat your best time and set new score records!',
+            ),
+          ],
+        ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Got it!'),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blueAccent,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text(
+            'Got it!',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
       ],
     ),
+  );
+}
+
+Widget _buildRuleItem(IconData icon, String title, String description) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.blueAccent.withValues(alpha: 0.25),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: Colors.amberAccent, size: 18),
+      ),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              description,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+                height: 1.35,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
   );
 }
