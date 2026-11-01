@@ -317,26 +317,28 @@ class _FlipNextCardState extends State<FlipNextCard> {
               ),
             ),
             const SizedBox(width: 10),
-            ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [Colors.white, Colors.white70],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ).createShader(bounds),
-              child: Text(
-                widget.gameType == GameType.numberGame ? 'Numbers' : 'Letters',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.8,
-                  color: Colors.white,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black45,
-                      blurRadius: 6,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
+            Expanded(
+              child: ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [Colors.white, Colors.white70],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(bounds),
+                child: Text(
+                  widget.gameType == GameType.numberGame ? '123' : 'ABC',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.8,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black45,
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

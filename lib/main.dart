@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:letter_finder_app/first_screen.dart';
+
+import 'first_screen.dart';
 
 void main() {
   runApp(const MyApp());
