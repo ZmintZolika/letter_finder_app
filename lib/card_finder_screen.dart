@@ -29,6 +29,9 @@ class FlipNextCard extends StatefulWidget {
 }
 
 class _FlipNextCardState extends State<FlipNextCard> {
+  // ÚJ: a kártyaforgatás ideje (a kártya animációja 380 ms, ezért kicsit több)
+  static const int flipDurationMs = 400;
+
   late final List<String> cards = List.generate(
     widget.boardSize,
     (index) => widget.gameType == GameType.numberGame
@@ -41,6 +44,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
   String? firstSelectedCard;
   String? secondSelectedCard;
   bool isChecking = false;
+  bool isMismatch = false; // ÚJ: rossz pár esetén a várakozás idejére igaz
 
   late Color cardThemeColor = widget.themeColor;
   late Color cardLetterColor = widget.themeColor;
@@ -169,6 +173,8 @@ class _FlipNextCardState extends State<FlipNextCard> {
       poppingCards.clear();
       firstSelectedCard = null;
       secondSelectedCard = null;
+      isChecking = false; // ÚJ
+      isMismatch = false; // ÚJ
       cards.shuffle();
     });
     Navigator.pop(context);
@@ -188,6 +194,30 @@ class _FlipNextCardState extends State<FlipNextCard> {
         }
       });
     }
+  }
+
+  // ÚJ: rossz pár kezelése lépésről lépésre
+  Future<void> _handleMismatch() async {
+    // 1. Megvárjuk, amíg a második kártya teljesen felfordul
+    await Future.delayed(const Duration(milliseconds: flipDurationMs));
+    if (!mounted) return;
+
+    // 2. Csak ezután festjük át a belsejét
+    setState(() {
+      isMismatch = true;
+    });
+
+    // 3. Utána jön a várakozás, hogy a játékos lássa a hibát
+    await Future.delayed(const Duration(milliseconds: 1000));
+    if (!mounted) return;
+
+    // 4. Visszaállítás: a kártyák visszafordulnak
+    setState(() {
+      firstSelectedCard = null;
+      secondSelectedCard = null;
+      isChecking = false;
+      isMismatch = false;
+    });
   }
 
   void _onCardTap(String card) {
@@ -240,15 +270,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
         _checkGameEnd();
       } else {
         isChecking = true;
-        Future.delayed(const Duration(milliseconds: 1200), () {
-          if (mounted) {
-            setState(() {
-              firstSelectedCard = null;
-              secondSelectedCard = null;
-              isChecking = false;
-            });
-          }
-        });
+        _handleMismatch(); // ÚJ
       }
     }
   }
@@ -351,10 +373,10 @@ class _FlipNextCardState extends State<FlipNextCard> {
             tooltip: 'Game Rules',
           ),
           ThemeColorPicker(
-            onColorSelected: (selectedColor) {
+            onColorSelected: (newColor) {
               setState(() {
-                cardThemeColor = selectedColor;
-                cardLetterColor = selectedColor;
+                cardThemeColor = newColor;
+                cardLetterColor = newColor;
               });
             },
           ),
@@ -363,7 +385,6 @@ class _FlipNextCardState extends State<FlipNextCard> {
       ),
       body: Stack(
         children: [
-          // 1. RÉTEG: Dinamikus háttérkép
           Positioned.fill(
             child: ColorFiltered(
               colorFilter: ColorFilter.mode(cardThemeColor, BlendMode.modulate),
@@ -373,8 +394,6 @@ class _FlipNextCardState extends State<FlipNextCard> {
               ),
             ),
           ),
-
-          // 2. RÉTEG: Tartalom státuszsávval és ráccsal
           Positioned.fill(
             child: SafeArea(
               child: Padding(
@@ -382,7 +401,6 @@ class _FlipNextCardState extends State<FlipNextCard> {
                 child: Column(
                   children: [
                     const SizedBox(height: 8),
-                    // STÁTUSZSÁV (IDŐMÉRŐ A KÁRTYÁK FELETT)
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -425,7 +443,6 @@ class _FlipNextCardState extends State<FlipNextCard> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // KÁRTYA RÁCS KÖZÉPRE RENDEZVE
                     Expanded(
                       child: Center(
                         child: ConstrainedBox(
@@ -460,6 +477,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
                                 isRevealed: isRevealed,
                                 isSelected: isSelected,
                                 isPopping: isPopping,
+                                isMismatch: isMismatch && isSelected, // ÚJ
                                 scale: targetScale,
                                 themeColor: cardThemeColor,
                                 selectedBorderColor: selectedColor,
@@ -488,6 +506,7 @@ class _AnimatedGameCard extends StatelessWidget {
     required this.isRevealed,
     required this.isSelected,
     required this.isPopping,
+    required this.isMismatch, // ÚJ
     required this.scale,
     required this.themeColor,
     required this.selectedBorderColor,
@@ -499,6 +518,7 @@ class _AnimatedGameCard extends StatelessWidget {
   final bool isRevealed;
   final bool isSelected;
   final bool isPopping;
+  final bool isMismatch; // ÚJ
   final double scale;
   final Color themeColor;
   final Color selectedBorderColor;
@@ -541,14 +561,16 @@ class _AnimatedGameCard extends StatelessWidget {
   Widget _buildBackFace() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.48),
+        color: isSelected
+            ? getLighterColorHSL(themeColor)
+            : Colors.black.withValues(alpha: 0.48),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: themeColor.withValues(alpha: 0.65), width: 2),
+        border: Border.all(color: themeColor.withValues(alpha: 0.9), width: 4),
         boxShadow: [
           BoxShadow(
             color: themeColor.withValues(alpha: 0.25),
             blurRadius: 8,
-            offset: const Offset(0, 3),
+            offset: const Offset(1, 3),
           ),
         ],
       ),
@@ -556,7 +578,7 @@ class _AnimatedGameCard extends StatelessWidget {
       child: Icon(
         Icons.auto_awesome_rounded,
         size: 20,
-        color: Colors.white.withValues(alpha: 0.22),
+        color: Colors.white.withValues(alpha: 0.75),
       ),
     );
   }
@@ -564,13 +586,15 @@ class _AnimatedGameCard extends StatelessWidget {
   Widget _buildFrontFace() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(
-          alpha: 0.7,
-        ), // Belső kitöltés marad a 70%-os üveghatás
+        // ÚJ: rossz pár esetén piros, egyébként a megszokott színek
+        color: isMismatch
+            ? Colors.redAccent.withValues(alpha: 0.85)
+            : (isSelected ? themeColor : Colors.white.withValues(alpha: 0.7)),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          // ITT A LÉNYEG: Teljesen tömör szín, semmi áttetszőség, és nagyobb vastagság (pl. 7.0)
-          color: isFaceUp ? Colors.amberAccent : selectedBorderColor,
+          color: isRevealed
+              ? getLighterColorHSL(themeColor)
+              : selectedBorderColor,
           width: isSelected ? 7.0 : 5.0,
         ),
         boxShadow: [
@@ -592,7 +616,7 @@ class _AnimatedGameCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w700,
-              color: themeColor,
+              color: isSelected ? Colors.white : themeColor,
               shadows: const [
                 Shadow(
                   color: Colors.black,

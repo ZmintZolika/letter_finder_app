@@ -22,6 +22,9 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
   static const int initialTimeSeconds = 120; // 2 perc = 120 másodperc
   static const String highScorePrefKey = 'infinity_best_score';
 
+  // ÚJ: a kártyaforgatás ideje, ennyit várunk a színváltás előtt
+  static const int flipDurationMs = 320;
+
   late List<int> cards;
   int nextNumberToGenerate = 13;
 
@@ -30,6 +33,7 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
   Set<int> poppingIndices = {};
   Set<int> spawningIndices = {};
   bool isChecking = false;
+  bool isMismatch = false; // ÚJ: rossz pár esetén a várakozás idejére igaz
 
   int score = 0;
   int bestScore = 0;
@@ -82,6 +86,7 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
     poppingIndices.clear();
     spawningIndices.clear();
     isChecking = false;
+    isMismatch = false;
     score = 0;
     remainingSeconds = initialTimeSeconds;
     hasGameStarted = false;
@@ -286,6 +291,30 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
     });
   }
 
+  // ÚJ: rossz pár kezelése lépésről lépésre
+  Future<void> _handleMismatch() async {
+    // 1. Megvárjuk, amíg a második kártya teljesen felfordul
+    await Future.delayed(const Duration(milliseconds: flipDurationMs));
+    if (!mounted) return;
+
+    // 2. Csak ezután festjük át a belsejét
+    setState(() {
+      isMismatch = true;
+    });
+
+    // 3. Utána jön a várakozás, hogy a játékos lássa a hibát
+    await Future.delayed(const Duration(milliseconds: 950));
+    if (!mounted) return;
+
+    // 4. Visszaállítás: a kártyák visszafordulnak
+    setState(() {
+      firstSelectedIndex = null;
+      secondSelectedIndex = null;
+      isChecking = false;
+      isMismatch = false;
+    });
+  }
+
   void _onCardTap(int index) {
     if (isChecking ||
         remainingSeconds <= 0 ||
@@ -322,7 +351,7 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
       final bool isMatch = (firstNumber - secondNumber).abs() == 1;
 
       if (isMatch) {
-        // ITT A KÉSLELTETÉS: 450ms, hogy a játékos lássa a második felfordított kártyát is
+        // 450ms késleltetés, hogy a játékos lássa a második kártyát is
         isChecking = true;
         Future.delayed(const Duration(milliseconds: 450), () {
           if (mounted) {
@@ -331,15 +360,7 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
         });
       } else {
         isChecking = true;
-        Future.delayed(const Duration(milliseconds: 950), () {
-          if (mounted) {
-            setState(() {
-              firstSelectedIndex = null;
-              secondSelectedIndex = null;
-              isChecking = false;
-            });
-          }
-        });
+        _handleMismatch(); // ÚJ
       }
     }
   }
@@ -662,9 +683,9 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
             onPressed: _showInfinityRules,
           ),
           ThemeColorPicker(
-            onColorSelected: (selectedColor) {
+            onColorSelected: (newColor) {
               setState(() {
-                cardThemeColor = selectedColor;
+                cardThemeColor = newColor;
               });
             },
           ),
@@ -711,7 +732,7 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
                         ],
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Row(
                             children: [
@@ -735,6 +756,7 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
                               ),
                             ],
                           ),
+                          const SizedBox(width: 30),
                           Row(
                             children: [
                               const Icon(
@@ -840,6 +862,7 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
                                 isSelected: isSelected,
                                 isPopping: isPopping,
                                 isSpawning: isSpawning,
+                                isMismatch: isMismatch && isSelected,
                                 themeColor: cardThemeColor,
                                 selectedBorderColor: selectedColor,
                                 onTap: () => _onCardTap(index),
@@ -868,6 +891,7 @@ class _InfinityAnimatedCard extends StatelessWidget {
     required this.isSelected,
     required this.isPopping,
     required this.isSpawning,
+    required this.isMismatch,
     required this.themeColor,
     required this.selectedBorderColor,
     required this.onTap,
@@ -878,6 +902,7 @@ class _InfinityAnimatedCard extends StatelessWidget {
   final bool isSelected;
   final bool isPopping;
   final bool isSpawning;
+  final bool isMismatch;
   final Color themeColor;
   final Color selectedBorderColor;
   final VoidCallback onTap;
@@ -949,12 +974,11 @@ class _InfinityAnimatedCard extends StatelessWidget {
   Widget _buildFrontFace() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(
-          alpha: 0.7,
-        ), // Belső kitöltés marad a 70%-os üveghatás
+        color: isMismatch
+            ? Colors.redAccent.withValues(alpha: 0.7)
+            : Colors.white.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          // ITT A LÉNYEG: Teljesen tömör szín, semmi áttetszőség, és nagyobb vastagság (pl. 7.0)
           color: isSpawning ? Colors.amberAccent : selectedBorderColor,
           width: isSelected ? 7.0 : 5.0,
         ),
