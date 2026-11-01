@@ -564,22 +564,14 @@ class _AnimatedGameCard extends StatelessWidget {
   Widget _buildFrontFace() {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isRevealed
-              ? [
-                  Colors.white.withValues(alpha: 0.88),
-                  Color.lerp(Colors.white, themeColor, 0.25)!,
-                ]
-              : [Colors.white, Color.lerp(Colors.white, themeColor, 0.15)!],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(14),
+        color: Colors.white.withValues(
+          alpha: 0.7,
+        ), // Belső kitöltés marad a 70%-os üveghatás
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected
-              ? selectedBorderColor
-              : (isRevealed ? themeColor.withValues(alpha: 0.8) : themeColor),
-          width: isSelected ? 3.5 : 2.5,
+          // ITT A LÉNYEG: Teljesen tömör szín, semmi áttetszőség, és nagyobb vastagság (pl. 7.0)
+          color: isFaceUp ? Colors.amberAccent : selectedBorderColor,
+          width: isSelected ? 7.0 : 5.0,
         ),
         boxShadow: [
           BoxShadow(
@@ -598,21 +590,26 @@ class _AnimatedGameCard extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: Color.lerp(Colors.black87, themeColor, 0.65),
+              fontSize: 32,
+              fontWeight: FontWeight.w700,
+              color: themeColor,
+              shadows: const [
+                Shadow(
+                  color: Colors.black,
+                  blurRadius: 2,
+                  offset: Offset(1, 2),
+                ),
+              ],
             ),
           ),
-          if (isRevealed)
+          if (isFaceUp)
             Positioned(
               top: 5,
               right: 5,
               child: Icon(
                 Icons.auto_awesome,
-                size: isPopping ? 18 : 13,
-                color: isPopping
-                    ? Colors.amber.shade700
-                    : themeColor.withValues(alpha: 0.65),
+                size: isPopping ? 20 : 15,
+                color: isPopping ? Colors.amberAccent : Colors.white,
               ),
             ),
         ],

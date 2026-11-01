@@ -467,7 +467,7 @@ class _SpecialInfinityCard extends StatelessWidget {
                       ),
                       SizedBox(height: 2),
                       Text(
-                        '5-Min Endless Challenge',
+                        '2-Min Endless Challenge',
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 12,

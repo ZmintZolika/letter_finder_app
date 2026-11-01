@@ -3,113 +3,107 @@ import 'package:flutter/material.dart';
 void summaryScreen(
   BuildContext context,
   String elapsedTime,
-  VoidCallback onPlayAgain,
-) {
-  showModalBottomSheet<void>(
+  VoidCallback onPlayAgain, {
+  Color themeColor = Colors.deepPurple,
+}) {
+  showDialog<void>(
     context: context,
-    isDismissible: false, // háttérre kattintás nem zár be
-    enableDrag: false,
-    isScrollControlled: true,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-    ),
-    builder: (sheetContext) => FractionallySizedBox(
-      heightFactor: 0.8,
-      widthFactor: 1.0,
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.emoji_events_rounded,
-                size: 56,
-                color: Colors.amber,
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Congratulations!',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'You revealed all the cards!',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.black54),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple.shade50,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.timer_outlined, color: Colors.deepPurple),
-                    const SizedBox(width: 10),
-                    Text(
-                      elapsedTime,
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: onPlayAgain,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Play Again'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 14,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.pop(
-                    sheetContext,
-                  ); // 1. Bezárja a felugró summary ablakot
-                  Navigator.pop(
-                    context,
-                  ); // 2. Kilép a játékból vissza a HomeScreen-re
-                },
-                icon: const Icon(Icons.home_rounded),
-                label: const Text('Main Screen'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.deepPurple,
-                  side: const BorderSide(color: Colors.deepPurple),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 14,
-                  ),
-                ),
-              ),
-            ],
+    barrierDismissible: false,
+    builder: (dialogContext) => AlertDialog(
+      backgroundColor: Colors.grey.shade900,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: themeColor.withValues(alpha: 0.7), width: 2),
+      ),
+      title: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.emoji_events_rounded, color: Colors.amberAccent, size: 28),
+          SizedBox(width: 10),
+          Text(
+            'Congratulations!',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
+        ],
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'You revealed all the cards!',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+              decoration: BoxDecoration(
+                color: themeColor.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white24),
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    'YOUR TIME',
+                    style: TextStyle(
+                      color: Colors.amberAccent,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.timer_outlined,
+                        color: Colors.amberAccent,
+                        size: 26,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        elapsedTime,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
+      actionsAlignment: MainAxisAlignment.spaceEvenly,
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(dialogContext); // bezárja a dialógust
+            Navigator.pop(context); // kilép a játékból a főképernyőre
+          },
+          child: const Text(
+            'Main Menu',
+            style: TextStyle(color: Colors.white70),
+          ),
+        ),
+        ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: themeColor,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          onPressed: onPlayAgain,
+          icon: const Icon(Icons.replay_rounded, size: 18),
+          label: const Text('Play Again'),
+        ),
+      ],
     ),
   );
 }

@@ -19,7 +19,7 @@ class NextToInfinityScreen extends StatefulWidget {
 class _NextToInfinityScreenState extends State<NextToInfinityScreen>
     with TickerProviderStateMixin {
   static const int boardSize = 12;
-  static const int initialTimeSeconds = 300; // 5 perc = 300 másodperc
+  static const int initialTimeSeconds = 120; // 2 perc = 120 másodperc
   static const String highScorePrefKey = 'infinity_best_score';
 
   late List<int> cards;
@@ -184,7 +184,6 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
     return cards.contains(number - 1) || cards.contains(number + 1);
   }
 
-  // Magányos kártya kezelése: felfordul, vár, majd eltűnik és frissül
   void _handleLonelyCard(int index) {
     _triggerHaptic(isMatch: true);
     _playSparkleSound();
@@ -193,17 +192,16 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
     final int earnedPoints = 50 + (cardValue * 5);
 
     setState(() {
-      firstSelectedIndex = index; // Felfordítva tartja
+      firstSelectedIndex = index;
       isChecking = true;
     });
 
-    // 1. Várunk egy picit, hogy a játékos lássa a felfordított kártyát (350ms)
     Future.delayed(const Duration(milliseconds: 350), () {
       if (!mounted) return;
       setState(() {
         score += earnedPoints;
         lastEarnedPoints = earnedPoints;
-        poppingIndices.add(index); // Elindul az eltűnős effekt
+        poppingIndices.add(index);
       });
 
       _floatingScoreController.forward(from: 0.0);
@@ -212,7 +210,6 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
         _saveBestScore();
       }
 
-      // 2. Zsugorodás után kicseréljük és keverjük
       Future.delayed(const Duration(milliseconds: 250), () {
         if (!mounted) return;
         setState(() {
@@ -229,7 +226,6 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
           isChecking = false;
         });
 
-        // 3. Visszanövés
         Future.delayed(const Duration(milliseconds: 150), () {
           if (!mounted) return;
           setState(() {
@@ -305,7 +301,6 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
     if (firstSelectedIndex == null) {
       final int selectedNumber = cards[index];
 
-      // Ha nincs szomszédja (magányos kártya), felfordítjuk és indítjuk az animációt!
       if (!_hasNeighborOnBoard(selectedNumber)) {
         _handleLonelyCard(index);
         return;
@@ -327,7 +322,13 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
       final bool isMatch = (firstNumber - secondNumber).abs() == 1;
 
       if (isMatch) {
-        _handleMatch([firstSelectedIndex!, secondSelectedIndex!]);
+        // ITT A KÉSLELTETÉS: 450ms, hogy a játékos lássa a második felfordított kártyát is
+        isChecking = true;
+        Future.delayed(const Duration(milliseconds: 450), () {
+          if (mounted) {
+            _handleMatch([firstSelectedIndex!, secondSelectedIndex!]);
+          }
+        });
       } else {
         isChecking = true;
         Future.delayed(const Duration(milliseconds: 950), () {
@@ -925,9 +926,9 @@ class _InfinityAnimatedCard extends StatelessWidget {
   Widget _buildBackFace() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.48),
+        color: Colors.black.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: themeColor.withValues(alpha: 0.65), width: 2),
+        border: Border.all(color: themeColor.withValues(alpha: 0.98), width: 4),
         boxShadow: [
           BoxShadow(
             color: themeColor.withValues(alpha: 0.25),
@@ -948,23 +949,22 @@ class _InfinityAnimatedCard extends StatelessWidget {
   Widget _buildFrontFace() {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.white, Color.lerp(Colors.white, themeColor, 0.2)!],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white.withValues(
+          alpha: 0.7,
+        ), // Belső kitöltés marad a 70%-os üveghatás
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
+          // ITT A LÉNYEG: Teljesen tömör szín, semmi áttetszőség, és nagyobb vastagság (pl. 7.0)
           color: isSpawning ? Colors.amberAccent : selectedBorderColor,
-          width: 3.5,
+          width: isSelected ? 7.0 : 5.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: isSpawning
-                ? Colors.amberAccent.withValues(alpha: 0.8)
-                : themeColor.withValues(alpha: 0.4),
-            blurRadius: isSpawning ? 16 : 8,
-            spreadRadius: isSpawning ? 2 : 0,
+            color: isPopping
+                ? Colors.amberAccent.withValues(alpha: 0.7)
+                : themeColor.withValues(alpha: 0.35),
+            blurRadius: isPopping ? 14 : 6,
+            spreadRadius: isPopping ? 2 : 0,
             offset: const Offset(0, 3),
           ),
         ],
@@ -975,19 +975,26 @@ class _InfinityAnimatedCard extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w900,
-              color: Color.lerp(Colors.black87, themeColor, 0.65),
+              fontSize: 32,
+              fontWeight: FontWeight.w700,
+              color: themeColor,
+              shadows: const [
+                Shadow(
+                  color: Colors.black,
+                  blurRadius: 2,
+                  offset: Offset(1, 2),
+                ),
+              ],
             ),
           ),
-          if (isSpawning)
+          if (isFaceUp)
             Positioned(
-              top: 6,
-              right: 6,
+              top: 5,
+              right: 5,
               child: Icon(
                 Icons.auto_awesome,
-                size: 18,
-                color: Colors.amber.shade700,
+                size: isPopping ? 20 : 15,
+                color: isPopping ? Colors.amberAccent : Colors.white,
               ),
             ),
         ],
