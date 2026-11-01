@@ -16,8 +16,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Color appThemeColor = Colors.blueAccent;
-  Map<String, int?> bestTimes = {}; // A 6 alap játékmód ideje
-  int infinityBestScore = 0; // A Next to Infinity mód rekord pontszáma
+  Map<String, int?> bestTimes = {};
+  int infinityBestScore = 0;
 
   @override
   void initState() {
@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Stack(
         children: [
-          // 1. RÉTEG: A színezhető háttérkép
+          // 1. RÉTEG: Háttérkép
           Positioned.fill(
             child: ColorFiltered(
               colorFilter: ColorFilter.mode(appThemeColor, BlendMode.modulate),
@@ -154,24 +154,24 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 2. RÉTEG: Függőlegesen és vízszintesen középre rendezett tartalom
+          // 2. RÉTEG: Tartalom
           Positioned.fill(
             child: SafeArea(
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 24,
+                      vertical: 20,
                       horizontal: 16,
                     ),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight - 48,
+                        minHeight: constraints.maxHeight - 40,
                       ),
                       child: Center(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 720),
-                          child: _buildGameModes(
+                          child: _buildOrganizedMenu(
                             MediaQuery.orientationOf(context) ==
                                 Orientation.landscape,
                           ),
@@ -188,52 +188,41 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildGameModes(bool isLandscape) {
-    final numbersColumn = _GameModeColumn(
-      header: _SectionHeader(
-        leading: _MiniCardStack(
-          labels: const ['1', '2', '3'],
-          themeColor: appThemeColor,
-        ),
-        title: 'Next to Numbers',
-      ),
+  Widget _buildOrganizedMenu(bool isLandscape) {
+    final numbersColumn = _GameModeGroup(
+      header: const _GroupTitle(title: 'Numbers', icon: Icons.filter_1_rounded),
       buttons: [
         _modeButton(10, GameType.numberGame, '10 Numbers'),
         _modeButton(18, GameType.numberGame, '18 Numbers'),
         _modeButton(26, GameType.numberGame, '26 Numbers'),
       ],
+      themeColor: appThemeColor,
     );
 
-    final lettersColumn = _GameModeColumn(
-      header: _SectionHeader(
-        leading: _MiniCardStack(
-          labels: const ['A', 'B', 'C'],
-          themeColor: appThemeColor,
-        ),
-        title: 'Next to Letters',
+    final lettersColumn = _GameModeGroup(
+      header: const _GroupTitle(
+        title: 'Letters',
+        icon: Icons.sort_by_alpha_rounded,
       ),
       buttons: [
         _modeButton(10, GameType.letterGame, '10 Letters'),
         _modeButton(18, GameType.letterGame, '18 Letters'),
         _modeButton(26, GameType.letterGame, 'Full ABC'),
       ],
+      themeColor: appThemeColor,
     );
 
-    final infinitySection = _GameModeColumn(
-      header: _SectionHeader(
-        leading: _MiniCardStack(
-          labels: const ['12', '13', '∞'],
-          themeColor: appThemeColor,
-        ),
-        title: 'Next to Infinity',
-      ),
-      buttons: [_infinityButton()],
+    // Kiemelt Végtelen Mód kártya alulra
+    final infinityCard = _SpecialInfinityCard(
+      scoreText: '$infinityBestScore pts',
+      themeColor: appThemeColor,
+      onPressed: () => navigateToInfinityScreen(context),
     );
 
-    if (isLandscape) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isLandscape)
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -241,21 +230,14 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 16),
               Expanded(child: lettersColumn),
             ],
-          ),
-          const SizedBox(height: 28),
-          infinitySection,
+          )
+        else ...[
+          numbersColumn,
+          const SizedBox(height: 20),
+          lettersColumn,
         ],
-      );
-    }
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        numbersColumn,
-        const SizedBox(height: 30),
-        lettersColumn,
-        const SizedBox(height: 30),
-        infinitySection,
+        const SizedBox(height: 24),
+        infinityCard,
       ],
     );
   }
@@ -272,14 +254,65 @@ class _HomeScreenState extends State<HomeScreen> {
       onPressed: () => navigateToCardFinderScreen(context, count, gameType),
     );
   }
+}
 
-  Widget _infinityButton() {
-    return _ModernGameButton(
-      label: '5-Min Endless Challenge',
-      badgeText: '$infinityBestScore pts',
-      badgeIcon: Icons.stars_rounded,
-      themeColor: appThemeColor,
-      onPressed: () => navigateToInfinityScreen(context),
+class _GameModeGroup extends StatelessWidget {
+  const _GameModeGroup({
+    required this.header,
+    required this.buttons,
+    required this.themeColor,
+  });
+
+  final Widget header;
+  final List<Widget> buttons;
+  final Color themeColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: themeColor.withValues(alpha: 0.35), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          header,
+          const SizedBox(height: 12),
+          for (var i = 0; i < buttons.length; i++) ...[
+            if (i > 0) const SizedBox(height: 10),
+            buttons[i],
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _GroupTitle extends StatelessWidget {
+  const _GroupTitle({required this.title, required this.icon});
+
+  final String title;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: Colors.amberAccent),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -305,65 +338,53 @@ class _ModernGameButton extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: themeColor.withValues(alpha: 0.6),
-              width: 1.5,
+              color: themeColor.withValues(alpha: 0.5),
+              width: 1,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: themeColor.withValues(alpha: 0.25),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // A gomb felirata középre igazítva a szabad térben
               Expanded(
-                child: Center(
-                  child: Text(
-                    label,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                    ),
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
-              // Rekord idő vagy pontszám badge a jobb szélen
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
+                  horizontal: 10,
+                  vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: themeColor.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(10),
+                  color: themeColor.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: Colors.white.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(badgeIcon, size: 14, color: Colors.amberAccent),
-                    const SizedBox(width: 6),
+                    Icon(badgeIcon, size: 13, color: Colors.amberAccent),
+                    const SizedBox(width: 5),
                     Text(
                       badgeText,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -378,132 +399,120 @@ class _ModernGameButton extends StatelessWidget {
   }
 }
 
-class _GameModeColumn extends StatelessWidget {
-  const _GameModeColumn({required this.header, required this.buttons});
+// Kiemelt Végtelen Mód kártya alulra
+class _SpecialInfinityCard extends StatelessWidget {
+  const _SpecialInfinityCard({
+    required this.scoreText,
+    required this.themeColor,
+    required this.onPressed,
+  });
 
-  final Widget header;
-  final List<Widget> buttons;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        header,
-        const SizedBox(height: 16),
-        for (var i = 0; i < buttons.length; i++) ...[
-          if (i > 0) const SizedBox(height: 16),
-          SizedBox(width: double.infinity, child: buttons[i]),
-        ],
-      ],
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.leading, required this.title});
-
-  final Widget leading;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(10, 8, 16, 8),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          leading,
-          const SizedBox(width: 10),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MiniCardStack extends StatelessWidget {
-  const _MiniCardStack({required this.labels, required this.themeColor});
-
-  final List<String> labels;
+  final String scoreText;
   final Color themeColor;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final onTheme =
-        ThemeData.estimateBrightnessForColor(themeColor) == Brightness.dark
-        ? Colors.white
-        : Colors.black87;
-
-    return SizedBox(
-      width: 40,
-      height: 34,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          for (var i = 0; i < labels.length; i++)
-            Positioned(
-              left: i * 8.0,
-              top: i == 1 ? 1 : 3,
-              child: Transform.rotate(
-                angle: (i - 1) * 0.18,
-                child: _cardFace(
-                  label: labels[i],
-                  background: Color.lerp(
-                    Colors.white,
-                    themeColor,
-                    0.18 + (i * 0.41),
-                  )!,
-                  foreground: i == labels.length - 1
-                      ? onTheme
-                      : Color.lerp(Colors.black87, themeColor, 0.55)!,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(20),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.black.withValues(alpha: 0.6),
+                themeColor.withValues(alpha: 0.35),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.amberAccent.withValues(alpha: 0.7),
+              width: 1.8,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.amberAccent.withValues(alpha: 0.2),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
+                children: [
+                  Icon(
+                    Icons.all_inclusive_rounded,
+                    color: Colors.amberAccent,
+                    size: 26,
+                  ),
+                  SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Next to Infinity',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        '5-Min Endless Challenge',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.amberAccent.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Colors.amberAccent.withValues(alpha: 0.5),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.stars_rounded,
+                      size: 14,
+                      color: Colors.amberAccent,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      scoreText,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _cardFace({
-    required String label,
-    required Color background,
-    required Color foreground,
-  }) {
-    return Container(
-      width: 22,
-      height: 28,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.75)),
-        boxShadow: [
-          BoxShadow(
-            color: themeColor.withValues(alpha: 0.38),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
+            ],
           ),
-        ],
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: foreground,
-          fontSize: 10,
-          fontWeight: FontWeight.w800,
-          height: 1,
         ),
       ),
     );

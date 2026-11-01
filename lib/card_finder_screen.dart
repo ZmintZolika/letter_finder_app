@@ -37,8 +37,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
   );
 
   Set<String> revealedCards = {};
-  Set<String> poppingCards =
-      {}; // A frissen megtalált pár átmeneti nagyításához
+  Set<String> poppingCards = {};
   String? firstSelectedCard;
   String? secondSelectedCard;
   bool isChecking = false;
@@ -51,7 +50,6 @@ class _FlipNextCardState extends State<FlipNextCard> {
   Timer? refreshTimer;
   bool hasGameStarted = false;
 
-  // Hang és rezgés állapotok (alapértelmezetten bekapcsolva, a telefon profilját követve)
   bool isSoundEnabled = true;
   bool isVibrationEnabled = true;
 
@@ -89,7 +87,6 @@ class _FlipNextCardState extends State<FlipNextCard> {
     }
   }
 
-  // Apró rezgés visszajelzés
   void _triggerHaptic({bool isMatch = false}) {
     if (!isVibrationEnabled) return;
     if (isMatch) {
@@ -99,18 +96,11 @@ class _FlipNextCardState extends State<FlipNextCard> {
     }
   }
 
-  // Hangeffekt lejátszása
   void _playSparkleSound() {
     if (!isSoundEnabled) return;
-    // Alapértelmezett rendszerhang (tiszteletben tartja a telefon néma módját):
     SystemSound.play(SystemSoundType.click);
-
-    // TIPP: Ha hozzáadod az 'audioplayers' csomagot és egy 'assets/sounds/sparkle.mp3'-at,
-    // itt tudod lejátszani:
-    // AudioPlayer().play(AssetSource('sounds/sparkle.mp3'));
   }
 
-  // Pár megtalálásakor: 112%-ra nő, majd 90%-ra zsugorodik
   void _triggerMatchEffect(List<String> matchedCards) {
     _triggerHaptic(isMatch: true);
     _playSparkleSound();
@@ -209,13 +199,11 @@ class _FlipNextCardState extends State<FlipNextCard> {
     startGameTimer();
     _triggerHaptic(isMatch: false);
 
-    // 1. Ha még nincs elsőnek kiválasztott kártya
     if (firstSelectedCard == null) {
       setState(() {
         firstSelectedCard = card;
       });
 
-      // Ha nincs szabad szomszédja, azonnal megtaláltnak számít
       if (!isHaveNextCard(
         firstSelectedCard!,
         revealedCards,
@@ -228,7 +216,6 @@ class _FlipNextCardState extends State<FlipNextCard> {
       return;
     }
 
-    // 2. Ha már van első kártya, és most választjuk a másodikat
     if (firstSelectedCard != null && secondSelectedCard == null) {
       setState(() {
         secondSelectedCard = card;
@@ -276,108 +263,89 @@ class _FlipNextCardState extends State<FlipNextCard> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        centerTitle: true,
+        titleSpacing: 0,
+        centerTitle: false,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Ide maradhat a meglévő ShaderMask cím és alatta a timer/score Row...
-              ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Colors.white, Colors.white70],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ).createShader(bounds),
-                child: Text(
-                  widget.gameType == GameType.numberGame
-                      ? 'NextFinder • Numbers'
-                      : 'NextFinder • Letters',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.8,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black45,
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: cardThemeColor.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.4),
+                  width: 1,
                 ),
               ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.25),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.timer_outlined,
-                      size: 13,
-                      color: Colors.amberAccent,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      elapsedTimeText,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
+              child: const Icon(
+                Icons.grid_view_rounded,
+                size: 18,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 10),
+            ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [Colors.white, Colors.white70],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Text(
+                widget.gameType == GameType.numberGame ? 'Numbers' : 'Letters',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.8,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black45,
+                      blurRadius: 6,
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
-            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
             icon: Icon(
               isSoundEnabled
                   ? Icons.volume_up_rounded
                   : Icons.volume_off_rounded,
               color: isSoundEnabled ? Colors.white : Colors.white54,
-              size: 22,
+              size: 20,
             ),
             onPressed: _toggleSound,
             tooltip: isSoundEnabled ? 'Sound On' : 'Sound Off',
           ),
           IconButton(
-            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
             icon: Icon(
               isVibrationEnabled
                   ? Icons.vibration_rounded
                   : Icons.smartphone_rounded,
               color: isVibrationEnabled ? Colors.white : Colors.white54,
-              size: 22,
+              size: 20,
             ),
             onPressed: _toggleVibration,
             tooltip: isVibrationEnabled ? 'Vibration On' : 'Vibration Off',
           ),
           IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
             icon: const Icon(
               Icons.help_outline_rounded,
               color: Colors.white,
-              size: 22,
+              size: 20,
             ),
             onPressed: () => showGameRules(context),
             tooltip: 'Game Rules',
@@ -390,6 +358,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
               });
             },
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Stack(
@@ -405,59 +374,104 @@ class _FlipNextCardState extends State<FlipNextCard> {
             ),
           ),
 
-          // 2. RÉTEG: Középre rendezett kártyarács
+          // 2. RÉTEG: Tartalom státuszsávval és ráccsal
           Positioned.fill(
             child: SafeArea(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return Center(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(14.0),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 680),
-                        child: GridView.count(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisCount: columnCount,
-                          mainAxisSpacing: 10,
-                          crossAxisSpacing: 10,
-                          childAspectRatio: 1.0,
-                          children: cards.map((card) {
-                            final bool isRevealed = revealedCards.contains(
-                              card,
-                            );
-                            final bool isSelected = isThisCard(
-                              firstSelectedCard,
-                              secondSelectedCard,
-                              card,
-                            );
-                            final bool isPopping = poppingCards.contains(card);
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    // STÁTUSZSÁV (IDŐMÉRŐ A KÁRTYÁK FELETT)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.45),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: cardThemeColor.withValues(alpha: 0.5),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: cardThemeColor.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.timer_outlined,
+                            size: 18,
+                            color: Colors.amberAccent,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Elapsed Time: $elapsedTimeText',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // KÁRTYA RÁCS KÖZÉPRE RENDEZVE
+                    Expanded(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 680),
+                          child: GridView.count(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisCount: columnCount,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                            childAspectRatio: 1.0,
+                            children: cards.map((card) {
+                              final bool isRevealed = revealedCards.contains(
+                                card,
+                              );
+                              final bool isSelected = isThisCard(
+                                firstSelectedCard,
+                                secondSelectedCard,
+                                card,
+                              );
+                              final bool isPopping = poppingCards.contains(
+                                card,
+                              );
 
-                            // Méretezés:
-                            // - Ha épp most találták meg: 1.12x (megnagyobbodik)
-                            // - Ha már megtalált pár: 0.90x (90%-os méret)
-                            // - Alaphelyzetben: 1.0x
-                            final double targetScale = isPopping
-                                ? 1.12
-                                : (isRevealed ? 0.90 : 1.0);
+                              final double targetScale = isPopping
+                                  ? 1.12
+                                  : (isRevealed ? 0.90 : 1.0);
 
-                            return _AnimatedGameCard(
-                              label: card,
-                              isFaceUp: isRevealed || isSelected,
-                              isRevealed: isRevealed,
-                              isSelected: isSelected,
-                              isPopping: isPopping,
-                              scale: targetScale,
-                              themeColor: cardThemeColor,
-                              selectedBorderColor: selectedColor,
-                              onTap: () => _onCardTap(card),
-                            );
-                          }).toList(),
+                              return _AnimatedGameCard(
+                                label: card,
+                                isFaceUp: isRevealed || isSelected,
+                                isRevealed: isRevealed,
+                                isSelected: isSelected,
+                                isPopping: isPopping,
+                                scale: targetScale,
+                                themeColor: cardThemeColor,
+                                selectedBorderColor: selectedColor,
+                                onTap: () => _onCardTap(card),
+                              );
+                            }).toList(),
+                          ),
                         ),
                       ),
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
             ),
           ),
@@ -508,7 +522,7 @@ class _AnimatedGameCard extends StatelessWidget {
             return Transform(
               alignment: Alignment.center,
               transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.0012) // 3D perspektíva
+                ..setEntry(3, 2, 0.0012)
                 ..rotateY(angle),
               child: showFront
                   ? Transform(
@@ -524,7 +538,6 @@ class _AnimatedGameCard extends StatelessWidget {
     );
   }
 
-  // Kártya hátlapja (lefordított állapot - sötét üveghatás)
   Widget _buildBackFace() {
     return Container(
       decoration: BoxDecoration(
@@ -541,14 +554,13 @@ class _AnimatedGameCard extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Icon(
-        Icons.auto_awesome_rounded, // Vagy Icons.question_mark_rounded
+        Icons.auto_awesome_rounded,
         size: 20,
         color: Colors.white.withValues(alpha: 0.22),
       ),
     );
   }
 
-  // Kártya előlapja (felfordított állapot)
   Widget _buildFrontFace() {
     return Container(
       decoration: BoxDecoration(
@@ -591,7 +603,6 @@ class _AnimatedGameCard extends StatelessWidget {
               color: Color.lerp(Colors.black87, themeColor, 0.65),
             ),
           ),
-          // Vizuális csillám ikon a sarokban, ha már megtalált pár
           if (isRevealed)
             Positioned(
               top: 5,
