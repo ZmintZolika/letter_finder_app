@@ -66,6 +66,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       isSoundEnabled = prefs.getBool('sound_enabled') ?? true;
       isVibrationEnabled = prefs.getBool('vibration_enabled') ?? true;
@@ -74,6 +75,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
 
   Future<void> _toggleSound() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       isSoundEnabled = !isSoundEnabled;
     });
@@ -82,6 +84,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
 
   Future<void> _toggleVibration() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       isVibrationEnabled = !isVibrationEnabled;
     });
@@ -190,7 +193,12 @@ class _FlipNextCardState extends State<FlipNextCard> {
       );
       Future.delayed(const Duration(milliseconds: 450), () {
         if (mounted) {
-          summaryScreen(context, elapsedTimeText, onPlayAgain);
+          summaryScreen(
+            context,
+            elapsedTimeText,
+            onPlayAgain,
+            themeColor: cardThemeColor,
+          );
         }
       });
     }
