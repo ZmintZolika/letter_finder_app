@@ -110,96 +110,119 @@ class _HomeScreenState extends State<HomeScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('Next to Numbers'),
-                    const SizedBox(
-                      height: 16,
-                    ), // Kis távolság a szöveg és a gomb között
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => navigateToCardFinderScreen(
-                        context,
-                        10,
-                        GameType.numberGame,
-                      ),
-                      child: Text(
-                        '10 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 10)])}',
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ), // Kis távolság a szöveg és a gomb között
-                    ElevatedButton(
-                      onPressed: () => navigateToCardFinderScreen(
-                        context,
-                        18,
-                        GameType.numberGame,
-                      ),
-                      child: Text(
-                        '18 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 18)])}',
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ), // Kis távolság a szöveg és a gomb között
-                    ElevatedButton(
-                      onPressed: () => navigateToCardFinderScreen(
-                        context,
-                        26,
-                        GameType.numberGame,
-                      ),
-                      child: Text(
-                        '26 Numbers - Best: ${formatBestTime(bestTimes[scoreKey(GameType.numberGame, 26)])}',
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ), // Kis távolság a szöveg és a gomb között
-                    const Text('Next to Letters'),
-                    const SizedBox(
-                      height: 16,
-                    ), // Kis távolság a szöveg és a gomb között
-                    ElevatedButton(
-                      onPressed: () => navigateToCardFinderScreen(
-                        context,
-                        10,
-                        GameType.letterGame,
-                      ),
-                      child: Text(
-                        '10 Letters - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 10)])}',
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ), // Kis távolság a szöveg és a gomb között
-                    ElevatedButton(
-                      onPressed: () => navigateToCardFinderScreen(
-                        context,
-                        18,
-                        GameType.letterGame,
-                      ),
-                      child: Text(
-                        '18 Letters - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 18)])}',
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ), // Kis távolság a szöveg és a gomb között
-                    ElevatedButton(
-                      onPressed: () => navigateToCardFinderScreen(
-                        context,
-                        26,
-                        GameType.letterGame,
-                      ),
-                      child: Text(
-                        'Full ABC - Best: ${formatBestTime(bestTimes[scoreKey(GameType.letterGame, 26)])}',
-                      ),
-                    ),
-                  ],
+                child: _buildGameModes(
+                  MediaQuery.orientationOf(context) == Orientation.landscape,
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameModes(bool isLandscape) {
+    final numbersColumn = _GameModeColumn(
+      header: const _SectionHeader(
+        icon: Icons.looks_one_outlined,
+        title: 'Next to Numbers',
+      ),
+      buttons: [
+        _modeButton(10, GameType.numberGame, '10 Numbers'),
+        _modeButton(18, GameType.numberGame, '18 Numbers'),
+        _modeButton(26, GameType.numberGame, '26 Numbers'),
+      ],
+    );
+    final lettersColumn = _GameModeColumn(
+      header: const _SectionHeader(
+        icon: Icons.sort_by_alpha,
+        title: 'Next to Letters',
+      ),
+      buttons: [
+        _modeButton(10, GameType.letterGame, '10 Letters'),
+        _modeButton(18, GameType.letterGame, '18 Letters'),
+        _modeButton(26, GameType.letterGame, 'Full ABC'),
+      ],
+    );
+
+    if (isLandscape) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: numbersColumn),
+          const SizedBox(width: 16),
+          Expanded(child: lettersColumn),
+        ],
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        numbersColumn,
+        const SizedBox(height: 30),
+        lettersColumn,
+      ],
+    );
+  }
+
+  Widget _modeButton(int count, GameType gameType, String label) {
+    return ElevatedButton(
+      onPressed: () => navigateToCardFinderScreen(context, count, gameType),
+      child: Text(
+        '$label - Best: ${formatBestTime(bestTimes[scoreKey(gameType, count)])}',
+      ),
+    );
+  }
+}
+
+class _GameModeColumn extends StatelessWidget {
+  const _GameModeColumn({required this.header, required this.buttons});
+
+  final Widget header;
+  final List<Widget> buttons;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        header,
+        const SizedBox(height: 16),
+        for (var i = 0; i < buttons.length; i++) ...[
+          if (i > 0) const SizedBox(height: 16),
+          SizedBox(width: double.infinity, child: buttons[i]),
+        ],
+      ],
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.icon, required this.title});
+
+  final IconData icon;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 22),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

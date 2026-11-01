@@ -52,7 +52,7 @@ class _FlipNextCardState extends State<FlipNextCard> {
 
   //játék színeinek beállítása
 
-  late Color cardThemeColor = getLighterColorHSL(widget.themeColor);
+  late Color cardThemeColor = (widget.themeColor);
   late Color cardLetterColor = widget.themeColor;
   Color selectedColor = Colors.red;
   Color get shadedBox => cardLetterColor;
