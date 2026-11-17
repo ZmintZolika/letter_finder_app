@@ -1,8 +1,7 @@
-# {{NextFinder}}
+# letter_finder_app / NextFinder
 
 A Flutter card game about finding **neighboring values**: flip two cards whose numbers (or letters) differ by exactly one. Two classic modes race the stopwatch, and an endless mode, **Next to Infinity**, rewards high scores.
 
-{{SCREENSHOT_OR_GIF_HERE}}
 
 ## Features
 
@@ -39,11 +38,11 @@ A Flutter card game about finding **neighboring values**: flip two cards whose n
 
 | Area | Details |
 |---|---|
-| Framework | Flutter ({{FLUTTER_VERSION}}) |
-| Language | Dart ({{DART_VERSION}}) |
+| Framework | Flutter (3.47.6) |
+| Language | Dart (3.13.5) |
 | Local storage | [`shared_preferences`](https://pub.dev/packages/shared_preferences) |
 | Date formatting | [`intl`](https://pub.dev/packages/intl) |
-| Tested platforms | {{PLATFORMS, e.g. Android}} |
+| Tested platforms | Android |
 
 ## Project Structure
 
@@ -85,8 +84,8 @@ A classic record is stored as JSON with the fields `elapsedSecond` and `date`. I
 ### Run
 
 ```bash
-git clone {{REPOSITORY_URL}}
-cd {{PROJECT_FOLDER}}
+git clone https://github.com/ZmintZolika/letter_finder_app.git
+cd letter_finder_app
 flutter pub get
 flutter run
 ```
@@ -105,8 +104,8 @@ flutter run
 
 ## Author
 
-ZmintZolika - {{LINK_TO_GITHUB_OR_PORTFOLIO}}
+ZmintZolika - github.com/ZmintZolika
 
 ## License
 
-Copyright (c) 2026 Your Name. All rights reserved.
+Copyright (c) 2026 ZmintZolika - All rights reserved.
