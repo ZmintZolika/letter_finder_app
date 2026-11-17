@@ -426,7 +426,7 @@ class _NextToInfinityScreenState extends State<NextToInfinityScreen>
               _buildRuleItem(
                 Icons.trending_up_rounded,
                 'Scaling Score & 2-Min Timer',
-                'Higher numbers grant more points per match. Race against the 5:00 countdown to set a new record!',
+                'Higher numbers grant more points per match. Race against the 2:00 countdown to set a new record!',
               ),
             ],
           ),
