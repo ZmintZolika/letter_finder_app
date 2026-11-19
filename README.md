@@ -48,7 +48,7 @@ A Flutter card game about finding **neighboring values**: flip two cards whose n
 
 ```
 lib/
-|-- main.dart                    # {{App entry point}}
+|-- main.dart                    #
 |-- first_screen.dart         # Mode and board size selection
 |-- card_finder_screen.dart      # Classic game (FlipNextCard) and GameType enum
 |-- next_to_infinity_screen.dart    # Next to Infinity mode
@@ -79,7 +79,7 @@ A classic record is stored as JSON with the fields `elapsedSecond` and `date`. I
 
 - Tested with Flutter 3.47.6, Dart 3.13.5
 - Android Studio / VS Code with the Flutter and Dart extensions
-- An Android device or emulator {{or other target}}
+- An Android device or emulator
 
 ### Run
 
@@ -99,7 +99,7 @@ flutter run
 
 - [ ] Show the best results above the mode selection on the home screen
 - [ ] Player names for records
-- [ ] iOS release (vagy Google Play release)
+- [ ] iOS release (Google Play release)
 - [ ] Daily challenge mode
 
 ## Author
